@@ -15,5 +15,9 @@
                 "description": "for secp256k1 support"
             }
         ]
+    },
+    "scripts": {
+        "build": "phpize && ./configure && make",
+        "test": "make test TESTS=\"-q -m --show-diff --show-mem\" VALGRIND_OPTS=\"--gen-suppressions=all --suppressions=valgrind-false-positives.supp\""
     }
 }

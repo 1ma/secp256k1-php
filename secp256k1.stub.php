@@ -5,6 +5,4 @@
  * @undocumentable
  */
 
-function test1(): void {}
-
-function test2(string $str = ""): string {}
+function secp256k1_test(): void {}

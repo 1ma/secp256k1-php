@@ -1,0 +1,21 @@
+# This is a Valgrind suppression file to suppress false positives.
+# Run Valgrind with --gen-suppressions=all to print a suppression after each warning,
+# and if it is a false positive append it to this file.
+
+# PHP internals: uninitialised value warnings during module startup.
+# These come from the PHP binary itself (no debug symbols), not from our extension.
+# A PHP built with --with-valgrind would not trigger these.
+{
+   php_module_startup_cond
+   Memcheck:Cond
+   ...
+   fun:php_module_startup
+   ...
+}
+{
+   php_module_startup_value8
+   Memcheck:Value8
+   ...
+   fun:php_module_startup
+   ...
+}

@@ -6,30 +6,64 @@
 
 #include "php.h"
 #include "ext/standard/info.h"
+#if PHP_VERSION_ID >= 80400
+# include "ext/random/php_random_csprng.h"
+#else
+# include "ext/random/php_random.h"
+#endif
 #include "php_secp256k1.h"
 #include "secp256k1_arginfo.h"
 
-PHP_FUNCTION(test1)
+#include <secp256k1.h>
+
+static secp256k1_context *secp256k1_ctx = NULL;
+
+PHP_FUNCTION(secp256k1_test)
 {
 	ZEND_PARSE_PARAMETERS_NONE();
 
 	php_printf("The extension %s is loaded and working!\r\n", "secp256k1");
 }
 
-PHP_FUNCTION(test2)
+PHP_MINIT_FUNCTION(secp256k1)
 {
-	char *var = "World";
-	size_t var_len = sizeof("World") - 1;
-	zend_string *retval;
+	unsigned char seed[32];
+	zend_result result = FAILURE;
 
-	ZEND_PARSE_PARAMETERS_START(0, 1)
-		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(var, var_len)
-	ZEND_PARSE_PARAMETERS_END();
+	secp256k1_ctx = secp256k1_context_create(SECP256K1_CONTEXT_NONE);
+	if (secp256k1_ctx == NULL) {
+		goto release;
+	}
 
-	retval = strpprintf(0, "Hello %s", var);
+	if (php_random_bytes_throw(seed, sizeof(seed)) == FAILURE) {
+		goto release;
+	}
 
-	RETURN_STR(retval);
+	if (!secp256k1_context_randomize(secp256k1_ctx, seed)) {
+		goto release;
+	}
+
+	result = SUCCESS;
+
+release:
+	explicit_bzero(seed, sizeof(seed));
+
+	if (result == FAILURE && secp256k1_ctx != NULL) {
+		secp256k1_context_destroy(secp256k1_ctx);
+		secp256k1_ctx = NULL;
+	}
+
+	return result;
+}
+
+PHP_MSHUTDOWN_FUNCTION(secp256k1)
+{
+	if (secp256k1_ctx != NULL) {
+		secp256k1_context_destroy(secp256k1_ctx);
+		secp256k1_ctx = NULL;
+	}
+
+	return SUCCESS;
 }
 
 PHP_RINIT_FUNCTION(secp256k1)
@@ -52,8 +86,8 @@ zend_module_entry secp256k1_module_entry = {
 	STANDARD_MODULE_HEADER,
 	"secp256k1",					/* Extension name */
 	ext_functions,					/* zend_function_entry */
-	NULL,							/* PHP_MINIT - Module initialization */
-	NULL,							/* PHP_MSHUTDOWN - Module shutdown */
+	PHP_MINIT(secp256k1),			/* PHP_MINIT - Module initialization */
+	PHP_MSHUTDOWN(secp256k1),		/* PHP_MSHUTDOWN - Module shutdown */
 	PHP_RINIT(secp256k1),			/* PHP_RINIT - Request initialization */
 	NULL,							/* PHP_RSHUTDOWN - Request shutdown */
 	PHP_MINFO(secp256k1),			/* PHP_MINFO - Module info */

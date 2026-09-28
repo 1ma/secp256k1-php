@@ -1,0 +1,39 @@
+name: Continuous Integration
+
+on:
+  push:
+  schedule:
+    - cron: 21 21 21 * *
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: PHP ${{ matrix.php-version }} ${{ matrix.thread-safety }}
+    runs-on: ubuntu-26.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: [ "8.2", "8.3", "8.4", "8.5", "8.6" ]
+        thread-safety: [ "nts", "zts" ]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
+        env:
+          debug: true
+          phpts: ${{ matrix.thread-safety }}
+        with:
+          php-version: ${{ matrix.php-version }}
+          ini-values: opcache.enable=1, opcache.enable_cli=1, opcache.protect_memory=1
+          coverage: none
+      - name: Build PHP extension
+        run: |
+          sudo apt install libsecp256k1-dev
+          composer build
+          ldd modules/secp256k1.so
+      - name: Test PHP extension
+        run: |
+          php -v
+          sudo apt-get install valgrind
+          composer test
