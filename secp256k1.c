@@ -9,13 +9,6 @@
 #include "php_secp256k1.h"
 #include "secp256k1_arginfo.h"
 
-/* For compatibility with older PHP versions */
-#ifndef ZEND_PARSE_PARAMETERS_NONE
-#define ZEND_PARSE_PARAMETERS_NONE() \
-	ZEND_PARSE_PARAMETERS_START(0, 0) \
-	ZEND_PARSE_PARAMETERS_END()
-#endif
-
 PHP_FUNCTION(test1)
 {
 	ZEND_PARSE_PARAMETERS_NONE();
