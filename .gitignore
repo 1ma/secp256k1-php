@@ -6,6 +6,7 @@ acinclude.m4
 aclocal.m4
 autom4te.cache
 build
+composer.lock
 config.cache
 config.guess
 config.h
