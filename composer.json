@@ -1,0 +1,19 @@
+{
+    "name": "uma/secp256k1",
+    "type": "php-ext",
+    "license": "BSD-3-Clause",
+    "description": "Describe your extension here",
+    "require": {
+        "php": "^8.3"
+    },
+    "php-ext": {
+        "extension-name": "secp256k1",
+        "configure-options": [
+            {
+                "name": "enable-secp256k1",
+                "needs-value": false,
+                "description": "whether to enable secp256k1 support"
+            }
+        ]
+    }
+}
