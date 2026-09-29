@@ -12,11 +12,49 @@
 # include "ext/random/php_random.h"
 #endif
 #include "php_secp256k1.h"
-#include "secp256k1_arginfo.h"
 
 #include <secp256k1.h>
 
+#include "secp256k1_arginfo.h"
+
 static secp256k1_context *secp256k1_ctx = NULL;
+
+static zend_class_entry *secp256k1_pubkey_ce;
+static zend_object_handlers secp256k1_pubkey_handlers;
+
+typedef struct {
+	secp256k1_pubkey pubkey;
+	zend_object std;
+} secp256k1_pubkey_obj;
+
+static inline secp256k1_pubkey_obj *secp256k1_pubkey_from_obj(zend_object *obj)
+{
+	return (secp256k1_pubkey_obj *)((char *)obj - offsetof(secp256k1_pubkey_obj, std));
+}
+
+static zend_object *secp256k1_pubkey_create_object(zend_class_entry *ce)
+{
+	secp256k1_pubkey_obj *intern = zend_object_alloc(sizeof(secp256k1_pubkey_obj), ce);
+
+	zend_object_std_init(&intern->std, ce);
+	intern->std.handlers = &secp256k1_pubkey_handlers;
+
+	return &intern->std;
+}
+
+static zend_object *secp256k1_pubkey_deny_new(zend_class_entry *ce)
+{
+	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_ec_pubkey_create() or secp256k1_ec_pubkey_parse()", ZSTR_VAL(ce->name));
+	return zend_objects_new(ce);
+}
+
+static void secp256k1_pubkey_free_object(zend_object *obj)
+{
+	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(obj);
+
+	explicit_bzero(&intern->pubkey, sizeof(secp256k1_pubkey));
+	zend_object_std_dtor(&intern->std);
+}
 
 PHP_FUNCTION(secp256k1_ec_seckey_verify)
 {
@@ -33,6 +71,76 @@ PHP_FUNCTION(secp256k1_ec_seckey_verify)
 	}
 
 	RETURN_BOOL(secp256k1_ec_seckey_verify(secp256k1_ctx, (const unsigned char *)seckey));
+}
+
+PHP_FUNCTION(secp256k1_ec_pubkey_create)
+{
+	char *seckey;
+	size_t seckey_len;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(seckey, seckey_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (seckey_len != 32) {
+		zend_argument_value_error(1, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
+	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(obj);
+
+	if (!secp256k1_ec_pubkey_create(secp256k1_ctx, &intern->pubkey, (const unsigned char *)seckey)) {
+		zend_object_release(obj);
+		RETURN_FALSE;
+	}
+
+	RETURN_OBJ(obj);
+}
+
+PHP_FUNCTION(secp256k1_ec_pubkey_parse)
+{
+	char *input;
+	size_t input_len;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(input, input_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
+	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(obj);
+
+	if (!secp256k1_ec_pubkey_parse(secp256k1_ctx, &intern->pubkey, (const unsigned char *)input, input_len)) {
+		zend_object_release(obj);
+		RETURN_FALSE;
+	}
+
+	RETURN_OBJ(obj);
+}
+
+PHP_FUNCTION(secp256k1_ec_pubkey_serialize)
+{
+	zval *pubkey_zval;
+	zend_long flags = SECP256K1_EC_COMPRESSED;
+	unsigned char output[65];
+	size_t outputlen = sizeof(output);
+
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_OBJECT_OF_CLASS(pubkey_zval, secp256k1_pubkey_ce)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(flags)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (flags != SECP256K1_EC_COMPRESSED && flags != SECP256K1_EC_UNCOMPRESSED) {
+		zend_argument_value_error(2, "must be SECP256K1_EC_COMPRESSED or SECP256K1_EC_UNCOMPRESSED");
+		RETURN_THROWS();
+	}
+
+	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+
+	secp256k1_ec_pubkey_serialize(secp256k1_ctx, output, &outputlen, &intern->pubkey, (unsigned int)flags);
+
+	RETURN_STRINGL((char *)output, outputlen);
 }
 
 PHP_MINIT_FUNCTION(secp256k1)
@@ -52,6 +160,16 @@ PHP_MINIT_FUNCTION(secp256k1)
 	if (!secp256k1_context_randomize(secp256k1_ctx, seed)) {
 		goto release;
 	}
+
+	secp256k1_pubkey_ce = register_class_secp256k1_pubkey();
+	secp256k1_pubkey_ce->create_object = secp256k1_pubkey_deny_new;
+
+	memcpy(&secp256k1_pubkey_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	secp256k1_pubkey_handlers.offset = offsetof(secp256k1_pubkey_obj, std);
+	secp256k1_pubkey_handlers.free_obj = secp256k1_pubkey_free_object;
+	secp256k1_pubkey_handlers.clone_obj = NULL;
+
+	register_secp256k1_symbols(module_number);
 
 	result = SUCCESS;
 
