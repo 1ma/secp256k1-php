@@ -17,6 +17,7 @@
         ]
     },
     "scripts": {
+        "ext:clean": "make distclean",
         "ext:build": ["phpize", "./configure", "make"],
         "ext:build-cov": ["phpize", "CFLAGS=\"--coverage -O0 -g\" LDFLAGS=\"--coverage\" ./configure", "make"],
         "ext:test": "make test TESTS=\"-q --show-diff\"",
@@ -28,6 +29,7 @@
         ]
     },
     "scripts-descriptions": {
+        "ext:clean": "Clean up build artifacts",
         "ext:build": "Build extension with default configuration",
         "ext:build-cov": "Build extension with coverage instrumentation",
         "ext:test": "Run extension test suite",

@@ -18,11 +18,21 @@
 
 static secp256k1_context *secp256k1_ctx = NULL;
 
-PHP_FUNCTION(secp256k1_test)
+PHP_FUNCTION(secp256k1_ec_seckey_verify)
 {
-	ZEND_PARSE_PARAMETERS_NONE();
+	char *seckey;
+	size_t seckey_len;
 
-	php_printf("The extension %s is loaded and working!\r\n", "secp256k1");
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(seckey, seckey_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (seckey_len != 32) {
+		zend_argument_value_error(1, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	RETURN_BOOL(secp256k1_ec_seckey_verify(secp256k1_ctx, (const unsigned char *)seckey));
 }
 
 PHP_MINIT_FUNCTION(secp256k1)
