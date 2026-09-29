@@ -59,11 +59,18 @@ pubkeys, DER/compact for signatures) and the internal representation.
 - `secp256k1_ec_pubkey_parse`
 - `secp256k1_ec_pubkey_serialize`
 
-### Phase 3 — ECDSA (sign + verify)
+### Phase 3a — ECDSA signature object + parse/serialize
+- Opaque class: `secp256k1_ecdsa_signature`
+- `secp256k1_ecdsa_signature_parse_compact`
+- `secp256k1_ecdsa_signature_parse_der`
+- `secp256k1_ecdsa_signature_serialize_compact`
+- `secp256k1_ecdsa_signature_serialize_der`
+
+### Phase 3b — ECDSA sign + verify
 - `secp256k1_ecdsa_sign`
 - `secp256k1_ecdsa_verify`
-- `secp256k1_ecdsa_signature_parse_compact` / `_parse_der`
-- `secp256k1_ecdsa_signature_serialize_compact` / `_serialize_der`
+
+### Phase 3c — ECDSA signature normalization
 - `secp256k1_ecdsa_signature_normalize`
 
 ### Phase 4 — ECDSA Recovery

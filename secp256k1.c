@@ -56,6 +56,43 @@ static void secp256k1_pubkey_free_object(zend_object *obj)
 	zend_object_std_dtor(&intern->std);
 }
 
+static zend_class_entry *secp256k1_ecdsa_sig_ce;
+static zend_object_handlers secp256k1_ecdsa_sig_handlers;
+
+typedef struct {
+	secp256k1_ecdsa_signature sig;
+	zend_object std;
+} secp256k1_ecdsa_sig_obj;
+
+static inline secp256k1_ecdsa_sig_obj *secp256k1_ecdsa_sig_from_obj(zend_object *obj)
+{
+	return (secp256k1_ecdsa_sig_obj *)((char *)obj - offsetof(secp256k1_ecdsa_sig_obj, std));
+}
+
+static zend_object *secp256k1_ecdsa_sig_create_object(zend_class_entry *ce)
+{
+	secp256k1_ecdsa_sig_obj *intern = zend_object_alloc(sizeof(secp256k1_ecdsa_sig_obj), ce);
+
+	zend_object_std_init(&intern->std, ce);
+	intern->std.handlers = &secp256k1_ecdsa_sig_handlers;
+
+	return &intern->std;
+}
+
+static zend_object *secp256k1_ecdsa_sig_deny_new(zend_class_entry *ce)
+{
+	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_ecdsa_signature_parse_compact() or secp256k1_ecdsa_signature_parse_der()", ZSTR_VAL(ce->name));
+	return zend_objects_new(ce);
+}
+
+static void secp256k1_ecdsa_sig_free_object(zend_object *obj)
+{
+	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(obj);
+
+	explicit_bzero(&intern->sig, sizeof(secp256k1_ecdsa_signature));
+	zend_object_std_dtor(&intern->std);
+}
+
 PHP_FUNCTION(secp256k1_ec_seckey_verify)
 {
 	char *seckey;
@@ -143,6 +180,84 @@ PHP_FUNCTION(secp256k1_ec_pubkey_serialize)
 	RETURN_STRINGL((char *)output, outputlen);
 }
 
+PHP_FUNCTION(secp256k1_ecdsa_signature_parse_compact)
+{
+	char *sig64;
+	size_t sig64_len;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(sig64, sig64_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (sig64_len != 64) {
+		zend_argument_value_error(1, "must be exactly 64 bytes");
+		RETURN_THROWS();
+	}
+
+	zend_object *obj = secp256k1_ecdsa_sig_create_object(secp256k1_ecdsa_sig_ce);
+	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(obj);
+
+	if (!secp256k1_ecdsa_signature_parse_compact(secp256k1_ctx, &intern->sig, (const unsigned char *)sig64)) {
+		zend_object_release(obj);
+		RETURN_FALSE;
+	}
+
+	RETURN_OBJ(obj);
+}
+
+PHP_FUNCTION(secp256k1_ecdsa_signature_parse_der)
+{
+	char *der;
+	size_t der_len;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(der, der_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	zend_object *obj = secp256k1_ecdsa_sig_create_object(secp256k1_ecdsa_sig_ce);
+	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(obj);
+
+	if (!secp256k1_ecdsa_signature_parse_der(secp256k1_ctx, &intern->sig, (const unsigned char *)der, der_len)) {
+		zend_object_release(obj);
+		RETURN_FALSE;
+	}
+
+	RETURN_OBJ(obj);
+}
+
+PHP_FUNCTION(secp256k1_ecdsa_signature_serialize_compact)
+{
+	zval *sig_zval;
+	unsigned char output[64];
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_OBJECT_OF_CLASS(sig_zval, secp256k1_ecdsa_sig_ce)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
+
+	secp256k1_ecdsa_signature_serialize_compact(secp256k1_ctx, output, &intern->sig);
+
+	RETURN_STRINGL((char *)output, 64);
+}
+
+PHP_FUNCTION(secp256k1_ecdsa_signature_serialize_der)
+{
+	zval *sig_zval;
+	unsigned char output[72];
+	size_t outputlen = sizeof(output);
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_OBJECT_OF_CLASS(sig_zval, secp256k1_ecdsa_sig_ce)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
+
+	secp256k1_ecdsa_signature_serialize_der(secp256k1_ctx, output, &outputlen, &intern->sig);
+
+	RETURN_STRINGL((char *)output, outputlen);
+}
+
 PHP_MINIT_FUNCTION(secp256k1)
 {
 	unsigned char seed[32];
@@ -168,6 +283,14 @@ PHP_MINIT_FUNCTION(secp256k1)
 	secp256k1_pubkey_handlers.offset = offsetof(secp256k1_pubkey_obj, std);
 	secp256k1_pubkey_handlers.free_obj = secp256k1_pubkey_free_object;
 	secp256k1_pubkey_handlers.clone_obj = NULL;
+
+	secp256k1_ecdsa_sig_ce = register_class_secp256k1_ecdsa_signature();
+	secp256k1_ecdsa_sig_ce->create_object = secp256k1_ecdsa_sig_deny_new;
+
+	memcpy(&secp256k1_ecdsa_sig_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	secp256k1_ecdsa_sig_handlers.offset = offsetof(secp256k1_ecdsa_sig_obj, std);
+	secp256k1_ecdsa_sig_handlers.free_obj = secp256k1_ecdsa_sig_free_object;
+	secp256k1_ecdsa_sig_handlers.clone_obj = NULL;
 
 	register_secp256k1_symbols(module_number);
 

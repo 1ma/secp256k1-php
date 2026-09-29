@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 506f9ea4ca526386e27a986d23ad89e1ccb4e55b */
+ * Stub hash: 9ab294db09e2a5c0d63a20a460bf5a5138e69682 */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_seckey_verify, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
@@ -18,16 +18,38 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_pubkey_serialize, 0
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, flags, IS_LONG, 0, "SECP256K1_EC_COMPRESSED")
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_ecdsa_signature_parse_compact, 0, 1, secp256k1_ecdsa_signature, MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, sig64, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_ecdsa_signature_parse_der, 0, 1, secp256k1_ecdsa_signature, MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, der, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ecdsa_signature_serialize_compact, 0, 1, IS_STRING, 0)
+	ZEND_ARG_OBJ_INFO(0, sig, secp256k1_ecdsa_signature, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_secp256k1_ecdsa_signature_serialize_der arginfo_secp256k1_ecdsa_signature_serialize_compact
+
 ZEND_FUNCTION(secp256k1_ec_seckey_verify);
 ZEND_FUNCTION(secp256k1_ec_pubkey_create);
 ZEND_FUNCTION(secp256k1_ec_pubkey_parse);
 ZEND_FUNCTION(secp256k1_ec_pubkey_serialize);
+ZEND_FUNCTION(secp256k1_ecdsa_signature_parse_compact);
+ZEND_FUNCTION(secp256k1_ecdsa_signature_parse_der);
+ZEND_FUNCTION(secp256k1_ecdsa_signature_serialize_compact);
+ZEND_FUNCTION(secp256k1_ecdsa_signature_serialize_der);
 
 static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_ec_seckey_verify, arginfo_secp256k1_ec_seckey_verify)
 	ZEND_FE(secp256k1_ec_pubkey_create, arginfo_secp256k1_ec_pubkey_create)
 	ZEND_FE(secp256k1_ec_pubkey_parse, arginfo_secp256k1_ec_pubkey_parse)
 	ZEND_FE(secp256k1_ec_pubkey_serialize, arginfo_secp256k1_ec_pubkey_serialize)
+	ZEND_FE(secp256k1_ecdsa_signature_parse_compact, arginfo_secp256k1_ecdsa_signature_parse_compact)
+	ZEND_FE(secp256k1_ecdsa_signature_parse_der, arginfo_secp256k1_ecdsa_signature_parse_der)
+	ZEND_FE(secp256k1_ecdsa_signature_serialize_compact, arginfo_secp256k1_ecdsa_signature_serialize_compact)
+	ZEND_FE(secp256k1_ecdsa_signature_serialize_der, arginfo_secp256k1_ecdsa_signature_serialize_der)
 	ZEND_FE_END
 };
 
@@ -42,6 +64,21 @@ static zend_class_entry *register_class_secp256k1_pubkey(void)
 	zend_class_entry ce, *class_entry;
 
 	INIT_CLASS_ENTRY(ce, "secp256k1_pubkey", NULL);
+#if (PHP_VERSION_ID >= 80400)
+	class_entry = zend_register_internal_class_with_flags(&ce, NULL, ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE);
+#else
+	class_entry = zend_register_internal_class_ex(&ce, NULL);
+	class_entry->ce_flags |= ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE;
+#endif
+
+	return class_entry;
+}
+
+static zend_class_entry *register_class_secp256k1_ecdsa_signature(void)
+{
+	zend_class_entry ce, *class_entry;
+
+	INIT_CLASS_ENTRY(ce, "secp256k1_ecdsa_signature", NULL);
 #if (PHP_VERSION_ID >= 80400)
 	class_entry = zend_register_internal_class_with_flags(&ce, NULL, ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE);
 #else
