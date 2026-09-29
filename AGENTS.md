@@ -24,29 +24,43 @@ module should have its own `.c` and `.stub.php` file, compiled conditionally via
 
 ## Context management
 
+### NTS (Non-Thread-Safe)
+
 A single global `secp256k1_context` is created and randomized at `PHP_MINIT` and destroyed at `PHP_MSHUTDOWN`.
 The 32 bytes of entropy for `secp256k1_context_randomize` come from PHP's internal
 `php_random_bytes()` (`ext/random/php_random.h`), which sources randomness from the OS kernel
 (`getrandom()` on Linux). This is the same source behind userland `random_bytes()`.
-This is safe under ZTS because all API functions that users call take `const secp256k1_context *`, which the
-library guarantees is safe for concurrent use from multiple threads. Only `context_destroy`, `context_randomize`
-and the `set_*_callback` functions take a non-const pointer and require exclusive access, and none of these
-are called during normal operation after MINIT.
 
-Alternatives considered and rejected:
+Users can re-randomize the context at any time by calling `secp256k1_context_randomize()` (Phase 11).
+libsecp256k1 recommends re-randomizing "before every few computations involving secret keys" as a
+hardening measure against side-channel attacks. Under NTS this is safe because execution is sequential.
+
+### ZTS (Thread-Safe)
+
+Under ZTS, each thread gets its own `secp256k1_context` via `ZEND_BEGIN_MODULE_GLOBALS` / GINIT / GSHUTDOWN.
+Each context is created and randomized at GINIT (thread startup) and destroyed at GSHUTDOWN. This avoids
+any contention between threads: `secp256k1_context_randomize()` only touches the calling thread's context.
+
+### Alternatives considered and rejected
+
 - **Expose context to userland**: adds ceremony without real benefit for most users. The only use case would
   be different error callbacks per context, which is very marginal.
 - **Create context per function call**: explicitly discouraged by libsecp256k1 docs ("Do not create a new
   context object for each operation, as construction and randomization can take non-negligible time").
+- **Single global context under ZTS with locking**: `context_randomize` requires exclusive access,
+  which would mean contention (pthread_rwlock or similar). php-src never uses pthread_rwlock internally,
+  and per-thread contexts are the idiomatic Zend approach.
 
 ## Opaque data structures
 
 The internal opaque structures (`secp256k1_pubkey`, `secp256k1_ecdsa_signature`, etc.) are represented as
-opaque PHP strings of their fixed size (e.g. 64 bytes for pubkey, 64 bytes for signature). Users don't
-manipulate them directly — parse/serialize functions convert between external formats (33/65 bytes for
-pubkeys, DER/compact for signatures) and the internal representation.
+final, non-serializable, non-cloneable PHP classes that wrap the C struct in a `zend_object`. Users cannot
+instantiate them directly (`new secp256k1_pubkey()` throws) — only parse/create functions return instances.
+Parse/serialize functions convert between external formats (33/65 bytes for pubkeys, DER/compact for
+signatures) and the internal representation. The `free_obj` handler calls `explicit_bzero` on the C struct
+to avoid leaving key material in freed memory.
 
-## Integration plan
+## Implementation plan
 
 ### Phase 0+1 — Infrastructure + first function
 - Set up global context (MINIT/MSHUTDOWN)
@@ -73,31 +87,65 @@ pubkeys, DER/compact for signatures) and the internal representation.
 ### Phase 3c — ECDSA signature normalization
 - `secp256k1_ecdsa_signature_normalize`
 
-### Phase 4 — ECDSA Recovery
+### Phase 4 — Auxiliary key operations
+- `secp256k1_ec_seckey_negate`, `_tweak_add`, `_tweak_mul`
+- `secp256k1_ec_pubkey_negate`, `_tweak_add`, `_tweak_mul`
+- `secp256k1_ec_pubkey_combine`, `_sort`, `_cmp`
+
+### Optional modules (conditional compilation, each in its own .c/.stub.php)
+
+All optional modules are detected at configure time with `PHP_CHECK_LIBRARY` and compiled
+only when the symbol is present in the installed libsecp256k1. Users check availability
+with `function_exists()`.
+
+### Phase 5 — ECDSA Recovery (optional, default OFF in libsecp256k1)
+- `secp256k1_recovery.c` / `secp256k1_recovery.stub.php`
+- Detect symbol: `secp256k1_ecdsa_sign_recoverable`
+- Opaque class: `secp256k1_ecdsa_recoverable_signature`
 - `secp256k1_ecdsa_sign_recoverable`
 - `secp256k1_ecdsa_recoverable_signature_parse_compact` / `_serialize_compact`
 - `secp256k1_ecdsa_recoverable_signature_convert`
 - `secp256k1_ecdsa_recover`
 
-### Phase 5 — ECDH
-- `secp256k1_ecdh`
-
-### Phase 6 — Extrakeys + Schnorr (BIP-340)
+### Phase 6a — Extrakeys (optional, default ON)
+- `secp256k1_extrakeys.c` / `secp256k1_extrakeys.stub.php`
+- Detect symbol: `secp256k1_xonly_pubkey_parse`
+- Opaque classes: `secp256k1_xonly_pubkey`, `secp256k1_keypair`
 - xonly pubkey: parse, serialize, from_pubkey, tweak_add, tweak_add_check, cmp
 - keypair: create, pub, xonly_pub, sec, xonly_tweak_add
+
+### Phase 6b — Schnorr signatures (optional, default ON, requires extrakeys)
+- `secp256k1_schnorrsig.c` / `secp256k1_schnorrsig.stub.php`
+- Detect symbol: `secp256k1_schnorrsig_sign32`
 - schnorrsig: sign32, verify
 - `secp256k1_tagged_sha256`
 
-### Phase 7 — Auxiliary key operations
-- `secp256k1_ec_seckey_negate`, `_tweak_add`, `_tweak_mul`
-- `secp256k1_ec_pubkey_negate`, `_tweak_add`, `_tweak_mul`
-- `secp256k1_ec_pubkey_combine`, `_sort`, `_cmp`
-- `secp256k1_context_randomize`
+### Phase 7 — ECDH (optional, default ON)
+- `secp256k1_ecdh.c` / `secp256k1_ecdh.stub.php`
+- Detect symbol: `secp256k1_ecdh`
+- `secp256k1_ecdh`
 
-### Phase 8+ — Optional modules (conditional compilation)
-- **ellswift** (>= 0.4.0): encode, decode, create, xdh
-- **musig** (>= 0.6.0): full MuSig2 API
-- **silentpayments** (>= 0.8.0): full BIP-352 API
+### Phase 8 — MuSig2 (optional, >= 0.6.0, default ON)
+- `secp256k1_musig.c` / `secp256k1_musig.stub.php`
+- Detect symbol: `secp256k1_musig_nonce_gen`
+- Opaque classes: `secp256k1_musig_keyagg_cache`, `secp256k1_musig_secnonce`, `secp256k1_musig_pubnonce`, `secp256k1_musig_aggnonce`, `secp256k1_musig_session`, `secp256k1_musig_partial_sig`
+- Full MuSig2 API: nonce_gen, nonce_agg, pubkey_agg, process, partial_sign, partial_sig_verify, partial_sig_agg
+
+### Phase 9 — Silent Payments (optional, >= 0.8.0, default ON)
+- `secp256k1_silentpayments.c` / `secp256k1_silentpayments.stub.php`
+- Detect symbol: `secp256k1_silentpayments_recipient_create_label_tweak`
+- Opaque classes: `secp256k1_silentpayments_recipient`, `secp256k1_silentpayments_label`, `secp256k1_silentpayments_prevouts_summary`, `secp256k1_silentpayments_found_output`
+- Full BIP-352 API
+
+### Phase 10 — Ellswift (optional, >= 0.4.0, default ON)
+- `secp256k1_ellswift.c` / `secp256k1_ellswift.stub.php`
+- Detect symbol: `secp256k1_ellswift_encode`
+- encode, decode, create, xdh
+
+### Phase 11 — Context re-randomization + ZTS module globals
+- `secp256k1_context_randomize`
+- Introduce `ZEND_BEGIN_MODULE_GLOBALS` / GINIT / GSHUTDOWN for per-thread contexts under ZTS
+- All prior phases use `const secp256k1_context *` and work on both NTS and ZTS without this
 
 ## Testing
 
