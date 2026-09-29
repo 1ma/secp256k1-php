@@ -1,3 +1,5 @@
+*.gcno
+*.info
 *.dep
 *.lo
 *.la
@@ -21,6 +23,7 @@ configure.ac
 configure.bat
 configure.in
 configure.js
+coverage-html
 include
 install-sh
 libtool

@@ -17,7 +17,21 @@
         ]
     },
     "scripts": {
-        "build": "phpize && ./configure && make",
-        "test": "make test TESTS=\"-q -m --show-diff --show-mem\" VALGRIND_OPTS=\"--gen-suppressions=all --suppressions=valgrind-false-positives.supp\""
+        "ext:build": ["phpize", "./configure", "make"],
+        "ext:build-cov": ["phpize", "CFLAGS=\"--coverage -O0 -g\" LDFLAGS=\"--coverage\" ./configure", "make"],
+        "ext:test": "make test TESTS=\"-q --show-diff\"",
+        "ext:test-valgrind": "make test TESTS=\"-q -m --show-diff --show-mem\" VALGRIND_OPTS=\"--gen-suppressions=all --suppressions=valgrind-false-positives.supp\"",
+        "ext:cov-report": [
+            "lcov --capture --directory .libs --output-file coverage.info",
+            "lcov --remove coverage.info '/usr/include/*' -o coverage.info",
+            "genhtml coverage.info --output-directory coverage-html"
+        ]
+    },
+    "scripts-descriptions": {
+        "ext:build": "Build extension with default configuration",
+        "ext:build-cov": "Build extension with coverage instrumentation",
+        "ext:test": "Run extension test suite",
+        "ext:test-valgrind": "Run extension test suite with Valgrind memcheck",
+        "ext:cov-report": "Generate lcov and html coverage reports after ext:build-cov and ext:test"
     }
 }

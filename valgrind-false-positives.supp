@@ -19,3 +19,22 @@
    fun:php_module_startup
    ...
 }
+
+# Zend JIT (IR compiler): uninitialised value warnings in ir_sparse_set_in.
+# These come from the JIT's IR backend, not from our extension.
+{
+   zend_jit_ir_sparse_set_cond
+   Memcheck:Cond
+   fun:ir_sparse_set_in
+   ...
+   fun:zend_jit_ir_compile
+   ...
+}
+{
+   zend_jit_ir_sparse_set_value8
+   Memcheck:Value8
+   fun:ir_sparse_set_in
+   ...
+   fun:zend_jit_ir_compile
+   ...
+}
