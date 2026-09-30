@@ -73,19 +73,17 @@ to avoid leaving key material in freed memory.
 - `secp256k1_ec_pubkey_parse`
 - `secp256k1_ec_pubkey_serialize`
 
-### Phase 3a — ECDSA signature object + parse/serialize
+### Phase 3a — ECDSA signature object + parse/serialize/normalize
 - Opaque class: `secp256k1_ecdsa_signature`
 - `secp256k1_ecdsa_signature_parse_compact`
 - `secp256k1_ecdsa_signature_parse_der`
 - `secp256k1_ecdsa_signature_serialize_compact`
 - `secp256k1_ecdsa_signature_serialize_der`
+- `secp256k1_ecdsa_signature_normalize`
 
 ### Phase 3b — ECDSA sign + verify
 - `secp256k1_ecdsa_sign`
 - `secp256k1_ecdsa_verify`
-
-### Phase 3c — ECDSA signature normalization
-- `secp256k1_ecdsa_signature_normalize`
 
 ### Phase 4 — Auxiliary key operations
 - `secp256k1_ec_seckey_negate`, `_tweak_add`, `_tweak_mul`

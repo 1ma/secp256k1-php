@@ -49,3 +49,5 @@ function secp256k1_ecdsa_signature_parse_der(string $der): secp256k1_ecdsa_signa
 function secp256k1_ecdsa_signature_serialize_compact(secp256k1_ecdsa_signature $sig): string {}
 
 function secp256k1_ecdsa_signature_serialize_der(secp256k1_ecdsa_signature $sig): string {}
+
+function secp256k1_ecdsa_signature_normalize(secp256k1_ecdsa_signature &$sig): bool {}

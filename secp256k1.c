@@ -258,6 +258,19 @@ PHP_FUNCTION(secp256k1_ecdsa_signature_serialize_der)
 	RETURN_STRINGL((char *)output, outputlen);
 }
 
+PHP_FUNCTION(secp256k1_ecdsa_signature_normalize)
+{
+	zval *sig_zval;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_OBJECT_OF_CLASS_EX(sig_zval, secp256k1_ecdsa_sig_ce, 0, 1)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
+
+	RETURN_BOOL(secp256k1_ecdsa_signature_normalize(secp256k1_ctx, &intern->sig, &intern->sig));
+}
+
 PHP_MINIT_FUNCTION(secp256k1)
 {
 	unsigned char seed[32];

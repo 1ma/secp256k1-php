@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 9ab294db09e2a5c0d63a20a460bf5a5138e69682 */
+ * Stub hash: 8a74d3a5b20b1830dbe1055b0590481c2e9f43d3 */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_seckey_verify, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
@@ -32,6 +32,10 @@ ZEND_END_ARG_INFO()
 
 #define arginfo_secp256k1_ecdsa_signature_serialize_der arginfo_secp256k1_ecdsa_signature_serialize_compact
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ecdsa_signature_normalize, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_OBJ_INFO(1, sig, secp256k1_ecdsa_signature, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_FUNCTION(secp256k1_ec_seckey_verify);
 ZEND_FUNCTION(secp256k1_ec_pubkey_create);
 ZEND_FUNCTION(secp256k1_ec_pubkey_parse);
@@ -40,6 +44,7 @@ ZEND_FUNCTION(secp256k1_ecdsa_signature_parse_compact);
 ZEND_FUNCTION(secp256k1_ecdsa_signature_parse_der);
 ZEND_FUNCTION(secp256k1_ecdsa_signature_serialize_compact);
 ZEND_FUNCTION(secp256k1_ecdsa_signature_serialize_der);
+ZEND_FUNCTION(secp256k1_ecdsa_signature_normalize);
 
 static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_ec_seckey_verify, arginfo_secp256k1_ec_seckey_verify)
@@ -50,6 +55,7 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_ecdsa_signature_parse_der, arginfo_secp256k1_ecdsa_signature_parse_der)
 	ZEND_FE(secp256k1_ecdsa_signature_serialize_compact, arginfo_secp256k1_ecdsa_signature_serialize_compact)
 	ZEND_FE(secp256k1_ecdsa_signature_serialize_der, arginfo_secp256k1_ecdsa_signature_serialize_der)
+	ZEND_FE(secp256k1_ecdsa_signature_normalize, arginfo_secp256k1_ecdsa_signature_normalize)
 	ZEND_FE_END
 };
 
