@@ -51,3 +51,7 @@ function secp256k1_ecdsa_signature_serialize_compact(secp256k1_ecdsa_signature $
 function secp256k1_ecdsa_signature_serialize_der(secp256k1_ecdsa_signature $sig): string {}
 
 function secp256k1_ecdsa_signature_normalize(secp256k1_ecdsa_signature &$sig): bool {}
+
+function secp256k1_ecdsa_sign(string $msghash32, string $seckey32): secp256k1_ecdsa_signature|false {}
+
+function secp256k1_ecdsa_verify(secp256k1_ecdsa_signature $sig, string $msghash32, secp256k1_pubkey $pubkey): bool {}

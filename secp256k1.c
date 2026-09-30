@@ -271,6 +271,60 @@ PHP_FUNCTION(secp256k1_ecdsa_signature_normalize)
 	RETURN_BOOL(secp256k1_ecdsa_signature_normalize(secp256k1_ctx, &intern->sig, &intern->sig));
 }
 
+PHP_FUNCTION(secp256k1_ecdsa_sign)
+{
+	char *msghash32, *seckey32;
+	size_t msghash32_len, seckey32_len;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_STRING(msghash32, msghash32_len)
+		Z_PARAM_STRING(seckey32, seckey32_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (msghash32_len != 32) {
+		zend_argument_value_error(1, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	if (seckey32_len != 32) {
+		zend_argument_value_error(2, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	zend_object *obj = secp256k1_ecdsa_sig_create_object(secp256k1_ecdsa_sig_ce);
+	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(obj);
+
+	if (!secp256k1_ecdsa_sign(secp256k1_ctx, &intern->sig, (const unsigned char *)msghash32, (const unsigned char *)seckey32, NULL, NULL)) {
+		zend_object_release(obj);
+		RETURN_FALSE;
+	}
+
+	RETURN_OBJ(obj);
+}
+
+PHP_FUNCTION(secp256k1_ecdsa_verify)
+{
+	zval *sig_zval, *pubkey_zval;
+	char *msghash32;
+	size_t msghash32_len;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_OBJECT_OF_CLASS(sig_zval, secp256k1_ecdsa_sig_ce)
+		Z_PARAM_STRING(msghash32, msghash32_len)
+		Z_PARAM_OBJECT_OF_CLASS(pubkey_zval, secp256k1_pubkey_ce)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (msghash32_len != 32) {
+		zend_argument_value_error(2, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	secp256k1_ecdsa_sig_obj *sig_intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
+	secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+
+	RETURN_BOOL(secp256k1_ecdsa_verify(secp256k1_ctx, &sig_intern->sig, (const unsigned char *)msghash32, &pubkey_intern->pubkey));
+}
+
 PHP_MINIT_FUNCTION(secp256k1)
 {
 	unsigned char seed[32];
