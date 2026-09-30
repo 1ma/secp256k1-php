@@ -614,6 +614,14 @@ PHP_MINFO_FUNCTION(secp256k1)
 {
 	php_info_print_table_start();
 	php_info_print_table_row(2, "secp256k1 support", "enabled");
+	php_info_print_table_row(2, "secp256k1 version", SECP256K1_LIB_VERSION);
+	php_info_print_table_row(2, "ecdh module", "disabled");
+	php_info_print_table_row(2, "recovery module", "disabled");
+	php_info_print_table_row(2, "extrakeys module", "disabled");
+	php_info_print_table_row(2, "schnorrsig module", "disabled");
+	php_info_print_table_row(2, "musig module", "disabled");
+	php_info_print_table_row(2, "ellswift module", "disabled");
+	php_info_print_table_row(2, "silentpayments module", "disabled");
 	php_info_print_table_end();
 }
 

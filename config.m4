@@ -34,6 +34,10 @@ AS_VAR_IF([PHP_SECP256K1], [no],, [
   dnl PKG_CHECK_MODULES([LIBFOO], [foo = 1.2.3])
   PKG_CHECK_MODULES([LIBSECP256K1], [libsecp256k1 >= 0.2.0])
 
+  SECP256K1_LIB_VERSION=$($PKG_CONFIG --modversion libsecp256k1)
+  AC_DEFINE_UNQUOTED([SECP256K1_LIB_VERSION], ["$SECP256K1_LIB_VERSION"],
+    [Version of the libsecp256k1 library detected at configure time.])
+
   dnl Add library compilation and linker flags to extension.
   PHP_EVAL_INCLINE([$LIBSECP256K1_CFLAGS])
   PHP_EVAL_LIBLINE([$LIBSECP256K1_LIBS], [SECP256K1_SHARED_LIBADD])
