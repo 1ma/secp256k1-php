@@ -55,3 +55,19 @@ function secp256k1_ecdsa_signature_normalize(secp256k1_ecdsa_signature &$sig): b
 function secp256k1_ecdsa_sign(string $msghash32, string $seckey32): secp256k1_ecdsa_signature|false {}
 
 function secp256k1_ecdsa_verify(secp256k1_ecdsa_signature $sig, string $msghash32, secp256k1_pubkey $pubkey): bool {}
+
+function secp256k1_ec_seckey_negate(string $seckey32): string|false {}
+
+function secp256k1_ec_seckey_tweak_add(string $seckey32, string $tweak32): string|false {}
+
+function secp256k1_ec_seckey_tweak_mul(string $seckey32, string $tweak32): string|false {}
+
+function secp256k1_ec_pubkey_negate(secp256k1_pubkey &$pubkey): void {}
+
+function secp256k1_ec_pubkey_tweak_add(secp256k1_pubkey &$pubkey, string $tweak32): bool {}
+
+function secp256k1_ec_pubkey_tweak_mul(secp256k1_pubkey &$pubkey, string $tweak32): bool {}
+
+function secp256k1_ec_pubkey_combine(array $pubkeys): secp256k1_pubkey|false {}
+
+function secp256k1_ec_pubkey_cmp(secp256k1_pubkey $pubkey1, secp256k1_pubkey $pubkey2): int {}

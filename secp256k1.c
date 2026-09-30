@@ -244,6 +244,7 @@ PHP_FUNCTION(secp256k1_ecdsa_signature_serialize_compact)
 PHP_FUNCTION(secp256k1_ecdsa_signature_serialize_der)
 {
 	zval *sig_zval;
+	/* DER: 6 bytes overhead + up to 33 bytes each for R and S (ecdsa_impl.h) */
 	unsigned char output[72];
 	size_t outputlen = sizeof(output);
 
@@ -323,6 +324,222 @@ PHP_FUNCTION(secp256k1_ecdsa_verify)
 	secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 
 	RETURN_BOOL(secp256k1_ecdsa_verify(secp256k1_ctx, &sig_intern->sig, (const unsigned char *)msghash32, &pubkey_intern->pubkey));
+}
+
+PHP_FUNCTION(secp256k1_ec_seckey_negate)
+{
+	char *seckey;
+	size_t seckey_len;
+	unsigned char buf[32];
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(seckey, seckey_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (seckey_len != 32) {
+		zend_argument_value_error(1, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	memcpy(buf, seckey, 32);
+
+	if (!secp256k1_ec_seckey_negate(secp256k1_ctx, buf)) {
+		explicit_bzero(buf, sizeof(buf));
+		RETURN_FALSE;
+	}
+
+	RETVAL_STRINGL((char *)buf, 32);
+	explicit_bzero(buf, sizeof(buf));
+}
+
+PHP_FUNCTION(secp256k1_ec_seckey_tweak_add)
+{
+	char *seckey, *tweak;
+	size_t seckey_len, tweak_len;
+	unsigned char buf[32];
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_STRING(seckey, seckey_len)
+		Z_PARAM_STRING(tweak, tweak_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (seckey_len != 32) {
+		zend_argument_value_error(1, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	if (tweak_len != 32) {
+		zend_argument_value_error(2, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	memcpy(buf, seckey, 32);
+
+	if (!secp256k1_ec_seckey_tweak_add(secp256k1_ctx, buf, (const unsigned char *)tweak)) {
+		explicit_bzero(buf, sizeof(buf));
+		RETURN_FALSE;
+	}
+
+	RETVAL_STRINGL((char *)buf, 32);
+	explicit_bzero(buf, sizeof(buf));
+}
+
+PHP_FUNCTION(secp256k1_ec_seckey_tweak_mul)
+{
+	char *seckey, *tweak;
+	size_t seckey_len, tweak_len;
+	unsigned char buf[32];
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_STRING(seckey, seckey_len)
+		Z_PARAM_STRING(tweak, tweak_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (seckey_len != 32) {
+		zend_argument_value_error(1, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	if (tweak_len != 32) {
+		zend_argument_value_error(2, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	memcpy(buf, seckey, 32);
+
+	if (!secp256k1_ec_seckey_tweak_mul(secp256k1_ctx, buf, (const unsigned char *)tweak)) {
+		explicit_bzero(buf, sizeof(buf));
+		RETURN_FALSE;
+	}
+
+	RETVAL_STRINGL((char *)buf, 32);
+	explicit_bzero(buf, sizeof(buf));
+}
+
+PHP_FUNCTION(secp256k1_ec_pubkey_negate)
+{
+	zval *pubkey_zval;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_OBJECT_OF_CLASS_EX(pubkey_zval, secp256k1_pubkey_ce, 0, 1)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+	int ret = secp256k1_ec_pubkey_negate(secp256k1_ctx, &intern->pubkey);
+	(void)ret;
+}
+
+PHP_FUNCTION(secp256k1_ec_pubkey_tweak_add)
+{
+	zval *pubkey_zval;
+	char *tweak;
+	size_t tweak_len;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_OBJECT_OF_CLASS_EX(pubkey_zval, secp256k1_pubkey_ce, 0, 1)
+		Z_PARAM_STRING(tweak, tweak_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (tweak_len != 32) {
+		zend_argument_value_error(2, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+	secp256k1_pubkey tmp = intern->pubkey;
+
+	if (!secp256k1_ec_pubkey_tweak_add(secp256k1_ctx, &tmp, (const unsigned char *)tweak)) {
+		RETURN_FALSE;
+	}
+
+	intern->pubkey = tmp;
+	RETURN_TRUE;
+}
+
+PHP_FUNCTION(secp256k1_ec_pubkey_tweak_mul)
+{
+	zval *pubkey_zval;
+	char *tweak;
+	size_t tweak_len;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_OBJECT_OF_CLASS_EX(pubkey_zval, secp256k1_pubkey_ce, 0, 1)
+		Z_PARAM_STRING(tweak, tweak_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (tweak_len != 32) {
+		zend_argument_value_error(2, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+	secp256k1_pubkey tmp = intern->pubkey;
+
+	if (!secp256k1_ec_pubkey_tweak_mul(secp256k1_ctx, &tmp, (const unsigned char *)tweak)) {
+		RETURN_FALSE;
+	}
+
+	intern->pubkey = tmp;
+	RETURN_TRUE;
+}
+
+PHP_FUNCTION(secp256k1_ec_pubkey_combine)
+{
+	HashTable *pubkeys_ht;
+	zval *entry;
+	size_t n, i;
+	const secp256k1_pubkey **pubkey_ptrs;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_ARRAY_HT(pubkeys_ht)
+	ZEND_PARSE_PARAMETERS_END();
+
+	n = zend_hash_num_elements(pubkeys_ht);
+	if (n == 0) {
+		zend_argument_value_error(1, "must not be empty");
+		RETURN_THROWS();
+	}
+
+	pubkey_ptrs = emalloc(sizeof(secp256k1_pubkey *) * n);
+	i = 0;
+
+	ZEND_HASH_FOREACH_VAL(pubkeys_ht, entry) {
+		if (Z_TYPE_P(entry) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(entry), secp256k1_pubkey_ce)) {
+			efree(pubkey_ptrs);
+			zend_argument_type_error(1, "must contain only secp256k1_pubkey objects");
+			RETURN_THROWS();
+		}
+		pubkey_ptrs[i++] = &secp256k1_pubkey_from_obj(Z_OBJ_P(entry))->pubkey;
+	} ZEND_HASH_FOREACH_END();
+
+	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
+	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(obj);
+
+	if (!secp256k1_ec_pubkey_combine(secp256k1_ctx, &intern->pubkey, pubkey_ptrs, n)) {
+		efree(pubkey_ptrs);
+		zend_object_release(obj);
+		RETURN_FALSE;
+	}
+
+	efree(pubkey_ptrs);
+	RETURN_OBJ(obj);
+}
+
+PHP_FUNCTION(secp256k1_ec_pubkey_cmp)
+{
+	zval *pubkey1_zval, *pubkey2_zval;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_OBJECT_OF_CLASS(pubkey1_zval, secp256k1_pubkey_ce)
+		Z_PARAM_OBJECT_OF_CLASS(pubkey2_zval, secp256k1_pubkey_ce)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_pubkey_obj *pk1 = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey1_zval));
+	secp256k1_pubkey_obj *pk2 = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey2_zval));
+
+	int result = secp256k1_ec_pubkey_cmp(secp256k1_ctx, &pk1->pubkey, &pk2->pubkey);
+
+	RETURN_LONG(result > 0 ? 1 : (result < 0 ? -1 : 0));
 }
 
 PHP_MINIT_FUNCTION(secp256k1)

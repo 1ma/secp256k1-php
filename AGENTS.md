@@ -88,7 +88,7 @@ to avoid leaving key material in freed memory.
 ### Phase 4 — Auxiliary key operations
 - `secp256k1_ec_seckey_negate`, `_tweak_add`, `_tweak_mul`
 - `secp256k1_ec_pubkey_negate`, `_tweak_add`, `_tweak_mul`
-- `secp256k1_ec_pubkey_combine`, `_sort`, `_cmp`
+- `secp256k1_ec_pubkey_combine`, `_cmp`
 
 ### Optional modules (conditional compilation, each in its own .c/.stub.php)
 
