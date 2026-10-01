@@ -21,7 +21,7 @@ secp256k1_context *secp256k1_ctx = NULL;
 zend_class_entry *secp256k1_pubkey_ce;
 static zend_object_handlers secp256k1_pubkey_handlers;
 
-static zend_object *secp256k1_pubkey_create_object(zend_class_entry *ce)
+zend_object *secp256k1_pubkey_create_object(zend_class_entry *ce)
 {
 	secp256k1_pubkey_obj *intern = zend_object_alloc(sizeof(secp256k1_pubkey_obj), ce);
 
@@ -45,20 +45,10 @@ static void secp256k1_pubkey_free_object(zend_object *obj)
 	zend_object_std_dtor(&intern->std);
 }
 
-static zend_class_entry *secp256k1_ecdsa_sig_ce;
+zend_class_entry *secp256k1_ecdsa_sig_ce;
 static zend_object_handlers secp256k1_ecdsa_sig_handlers;
 
-typedef struct {
-	secp256k1_ecdsa_signature sig;
-	zend_object std;
-} secp256k1_ecdsa_sig_obj;
-
-static inline secp256k1_ecdsa_sig_obj *secp256k1_ecdsa_sig_from_obj(zend_object *obj)
-{
-	return (secp256k1_ecdsa_sig_obj *)((char *)obj - offsetof(secp256k1_ecdsa_sig_obj, std));
-}
-
-static zend_object *secp256k1_ecdsa_sig_create_object(zend_class_entry *ce)
+zend_object *secp256k1_ecdsa_sig_create_object(zend_class_entry *ce)
 {
 	secp256k1_ecdsa_sig_obj *intern = zend_object_alloc(sizeof(secp256k1_ecdsa_sig_obj), ce);
 

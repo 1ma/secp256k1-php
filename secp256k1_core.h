@@ -18,4 +18,20 @@ static inline secp256k1_pubkey_obj *secp256k1_pubkey_from_obj(zend_object *obj)
 	return (secp256k1_pubkey_obj *)((char *)obj - offsetof(secp256k1_pubkey_obj, std));
 }
 
+zend_object *secp256k1_pubkey_create_object(zend_class_entry *ce);
+
+extern zend_class_entry *secp256k1_ecdsa_sig_ce;
+
+typedef struct {
+	secp256k1_ecdsa_signature sig;
+	zend_object std;
+} secp256k1_ecdsa_sig_obj;
+
+static inline secp256k1_ecdsa_sig_obj *secp256k1_ecdsa_sig_from_obj(zend_object *obj)
+{
+	return (secp256k1_ecdsa_sig_obj *)((char *)obj - offsetof(secp256k1_ecdsa_sig_obj, std));
+}
+
+zend_object *secp256k1_ecdsa_sig_create_object(zend_class_entry *ce);
+
 #endif /* SECP256K1_CORE_H */
