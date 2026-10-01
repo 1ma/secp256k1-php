@@ -90,32 +90,36 @@ to avoid leaving key material in freed memory.
 - `secp256k1_ec_pubkey_negate`, `_tweak_add`, `_tweak_mul`
 - `secp256k1_ec_pubkey_combine`, `_cmp`
 
-### Optional modules (conditional compilation, each in its own .c/.stub.php)
+### Optional modules (conditional compilation, each in its own .c)
 
 All optional modules are detected at configure time with `PHP_CHECK_LIBRARY` and compiled
 only when the symbol is present in the installed libsecp256k1. Users check availability
-with `function_exists()`.
+with `function_exists()`. Each optional module has its own `.c` file for the implementation,
+but function declarations go in the single `secp256k1.stub.php` wrapped in
+`#if defined(HAVE_SECP256K1_*)` guards. `gen_stub.php` propagates these guards to the
+generated arginfo, so all functions end up in a single `ext_functions` array with
+preprocessor conditionals — no need for separate `zend_register_functions` calls.
 
 ### Phase 5 — ECDH (optional, default ON)
-- `secp256k1_ecdh.c` / `secp256k1_ecdh.stub.php`
+- `secp256k1_ecdh.c`
 - Detect symbol: `secp256k1_ecdh`
 - `secp256k1_ecdh`
 
 ### Phase 6a — Extrakeys (optional, default ON)
-- `secp256k1_extrakeys.c` / `secp256k1_extrakeys.stub.php`
+- `secp256k1_extrakeys.c`
 - Detect symbol: `secp256k1_xonly_pubkey_parse`
 - Opaque classes: `secp256k1_xonly_pubkey`, `secp256k1_keypair`
 - xonly pubkey: parse, serialize, from_pubkey, tweak_add, tweak_add_check, cmp
 - keypair: create, pub, xonly_pub, sec, xonly_tweak_add
 
 ### Phase 6b — Schnorr signatures (optional, default ON, requires extrakeys)
-- `secp256k1_schnorrsig.c` / `secp256k1_schnorrsig.stub.php`
+- `secp256k1_schnorrsig.c`
 - Detect symbol: `secp256k1_schnorrsig_sign32`
 - schnorrsig: sign32, verify
 - `secp256k1_tagged_sha256`
 
 ### Phase 7 — ECDSA Recovery (optional, default OFF in libsecp256k1)
-- `secp256k1_recovery.c` / `secp256k1_recovery.stub.php`
+- `secp256k1_recovery.c`
 - Detect symbol: `secp256k1_ecdsa_sign_recoverable`
 - Opaque class: `secp256k1_ecdsa_recoverable_signature`
 - `secp256k1_ecdsa_sign_recoverable`
@@ -124,19 +128,19 @@ with `function_exists()`.
 - `secp256k1_ecdsa_recover`
 
 ### Phase 8 — MuSig2 (optional, >= 0.6.0, default ON)
-- `secp256k1_musig.c` / `secp256k1_musig.stub.php`
+- `secp256k1_musig.c`
 - Detect symbol: `secp256k1_musig_nonce_gen`
 - Opaque classes: `secp256k1_musig_keyagg_cache`, `secp256k1_musig_secnonce`, `secp256k1_musig_pubnonce`, `secp256k1_musig_aggnonce`, `secp256k1_musig_session`, `secp256k1_musig_partial_sig`
 - Full MuSig2 API: nonce_gen, nonce_agg, pubkey_agg, process, partial_sign, partial_sig_verify, partial_sig_agg
 
 ### Phase 9 — Silent Payments (optional, >= 0.8.0, default ON)
-- `secp256k1_silentpayments.c` / `secp256k1_silentpayments.stub.php`
+- `secp256k1_silentpayments.c`
 - Detect symbol: `secp256k1_silentpayments_recipient_create_label_tweak`
 - Opaque classes: `secp256k1_silentpayments_recipient`, `secp256k1_silentpayments_label`, `secp256k1_silentpayments_prevouts_summary`, `secp256k1_silentpayments_found_output`
 - Full BIP-352 API
 
 ### Phase 10 — Ellswift (optional, >= 0.4.0, default ON)
-- `secp256k1_ellswift.c` / `secp256k1_ellswift.stub.php`
+- `secp256k1_ellswift.c`
 - Detect symbol: `secp256k1_ellswift_encode`
 - encode, decode, create, xdh
 

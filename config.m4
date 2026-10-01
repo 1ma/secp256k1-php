@@ -42,18 +42,15 @@ AS_VAR_IF([PHP_SECP256K1], [no],, [
   PHP_EVAL_INCLINE([$LIBSECP256K1_CFLAGS])
   PHP_EVAL_LIBLINE([$LIBSECP256K1_LIBS], [SECP256K1_SHARED_LIBADD])
 
-  dnl Check for library and symbol presence.
-  dnl LIBNAME=secp256k1 # you may want to change this
-  dnl LIBSYMBOL=secp256k1 # you most likely want to change this
-  dnl
-  dnl If you need to check for a particular library function (e.g. a conditional
-  dnl or version-dependent feature) and you are using pkg-config:
-  dnl PHP_CHECK_LIBRARY([$LIBNAME], [$LIBSYMBOL],
-  dnl   [AC_DEFINE([HAVE_SECP256K1_FEATURE], [1],
-  dnl     [Define to 1 if secp256k1 has the 'FEATURE'.])],
-  dnl   [AC_MSG_FAILURE([FEATURE not supported by your secp256k1 library.])],
-  dnl   [$LIBFOO_LIBS])
-  dnl
+  dnl Optional modules: detect symbols and add sources conditionally.
+  PHP_SECP256K1_SOURCES="secp256k1_core.c"
+
+  PHP_CHECK_LIBRARY([secp256k1], [secp256k1_ecdh],
+    [AC_DEFINE([HAVE_SECP256K1_ECDH], [1],
+      [Define to 1 if libsecp256k1 has the ECDH module.])
+     PHP_SECP256K1_SOURCES="$PHP_SECP256K1_SOURCES secp256k1_ecdh.c"],
+    [],
+    [$LIBSECP256K1_LIBS])
 
   dnl Add linked libraries flags for shared extension to the generated Makefile.
   PHP_SUBST([SECP256K1_SHARED_LIBADD])
@@ -65,7 +62,7 @@ AS_VAR_IF([PHP_SECP256K1], [no],, [
 
   dnl Configure extension sources and compilation flags.
   PHP_NEW_EXTENSION([secp256k1],
-    [secp256k1.c],
+    [$PHP_SECP256K1_SOURCES],
     [$ext_shared],,
     [-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1])
 ])

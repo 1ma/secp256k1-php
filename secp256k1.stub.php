@@ -71,3 +71,7 @@ function secp256k1_ec_pubkey_tweak_mul(secp256k1_pubkey &$pubkey, string $tweak3
 function secp256k1_ec_pubkey_combine(array $pubkeys): secp256k1_pubkey|false {}
 
 function secp256k1_ec_pubkey_cmp(secp256k1_pubkey $pubkey1, secp256k1_pubkey $pubkey2): int {}
+
+#if defined(HAVE_SECP256K1_ECDH)
+function secp256k1_ecdh(secp256k1_pubkey $pubkey, string $seckey32): string|false {}
+#endif

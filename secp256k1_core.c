@@ -12,25 +12,14 @@
 # include "ext/random/php_random.h"
 #endif
 #include "php_secp256k1.h"
-
-#include <secp256k1.h>
+#include "secp256k1_core.h"
 
 #include "secp256k1_arginfo.h"
 
-static secp256k1_context *secp256k1_ctx = NULL;
+secp256k1_context *secp256k1_ctx = NULL;
 
-static zend_class_entry *secp256k1_pubkey_ce;
+zend_class_entry *secp256k1_pubkey_ce;
 static zend_object_handlers secp256k1_pubkey_handlers;
-
-typedef struct {
-	secp256k1_pubkey pubkey;
-	zend_object std;
-} secp256k1_pubkey_obj;
-
-static inline secp256k1_pubkey_obj *secp256k1_pubkey_from_obj(zend_object *obj)
-{
-	return (secp256k1_pubkey_obj *)((char *)obj - offsetof(secp256k1_pubkey_obj, std));
-}
 
 static zend_object *secp256k1_pubkey_create_object(zend_class_entry *ce)
 {
@@ -615,7 +604,11 @@ PHP_MINFO_FUNCTION(secp256k1)
 	php_info_print_table_start();
 	php_info_print_table_row(2, "secp256k1 support", "enabled");
 	php_info_print_table_row(2, "secp256k1 version", SECP256K1_LIB_VERSION);
+#ifdef HAVE_SECP256K1_ECDH
+	php_info_print_table_row(2, "ecdh module", "enabled");
+#else
 	php_info_print_table_row(2, "ecdh module", "disabled");
+#endif
 	php_info_print_table_row(2, "recovery module", "disabled");
 	php_info_print_table_row(2, "extrakeys module", "disabled");
 	php_info_print_table_row(2, "schnorrsig module", "disabled");
