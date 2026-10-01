@@ -96,14 +96,10 @@ All optional modules are detected at configure time with `PHP_CHECK_LIBRARY` and
 only when the symbol is present in the installed libsecp256k1. Users check availability
 with `function_exists()`.
 
-### Phase 5 — ECDSA Recovery (optional, default OFF in libsecp256k1)
-- `secp256k1_recovery.c` / `secp256k1_recovery.stub.php`
-- Detect symbol: `secp256k1_ecdsa_sign_recoverable`
-- Opaque class: `secp256k1_ecdsa_recoverable_signature`
-- `secp256k1_ecdsa_sign_recoverable`
-- `secp256k1_ecdsa_recoverable_signature_parse_compact` / `_serialize_compact`
-- `secp256k1_ecdsa_recoverable_signature_convert`
-- `secp256k1_ecdsa_recover`
+### Phase 5 — ECDH (optional, default ON)
+- `secp256k1_ecdh.c` / `secp256k1_ecdh.stub.php`
+- Detect symbol: `secp256k1_ecdh`
+- `secp256k1_ecdh`
 
 ### Phase 6a — Extrakeys (optional, default ON)
 - `secp256k1_extrakeys.c` / `secp256k1_extrakeys.stub.php`
@@ -118,10 +114,14 @@ with `function_exists()`.
 - schnorrsig: sign32, verify
 - `secp256k1_tagged_sha256`
 
-### Phase 7 — ECDH (optional, default ON)
-- `secp256k1_ecdh.c` / `secp256k1_ecdh.stub.php`
-- Detect symbol: `secp256k1_ecdh`
-- `secp256k1_ecdh`
+### Phase 7 — ECDSA Recovery (optional, default OFF in libsecp256k1)
+- `secp256k1_recovery.c` / `secp256k1_recovery.stub.php`
+- Detect symbol: `secp256k1_ecdsa_sign_recoverable`
+- Opaque class: `secp256k1_ecdsa_recoverable_signature`
+- `secp256k1_ecdsa_sign_recoverable`
+- `secp256k1_ecdsa_recoverable_signature_parse_compact` / `_serialize_compact`
+- `secp256k1_ecdsa_recoverable_signature_convert`
+- `secp256k1_ecdsa_recover`
 
 ### Phase 8 — MuSig2 (optional, >= 0.6.0, default ON)
 - `secp256k1_musig.c` / `secp256k1_musig.stub.php`
