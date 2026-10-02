@@ -117,3 +117,11 @@ function secp256k1_keypair_sec(secp256k1_keypair $keypair): string {}
 
 function secp256k1_keypair_xonly_tweak_add(secp256k1_keypair &$keypair, string $tweak32): bool {}
 #endif
+
+#if defined(HAVE_SECP256K1_SCHNORRSIG)
+function secp256k1_schnorrsig_sign32(string $msghash32, secp256k1_keypair $keypair, ?string $aux_rand32 = null): string|false {}
+
+function secp256k1_schnorrsig_sign_custom(string $msg, secp256k1_keypair $keypair): string|false {}
+
+function secp256k1_schnorrsig_verify(string $sig64, string $msg, secp256k1_xonly_pubkey $pubkey): bool {}
+#endif

@@ -232,7 +232,11 @@ PHP_MINFO_FUNCTION(secp256k1)
 #else
 	php_info_print_table_row(2, "extrakeys module", "disabled");
 #endif
+#ifdef HAVE_SECP256K1_SCHNORRSIG
+	php_info_print_table_row(2, "schnorrsig module", "enabled");
+#else
 	php_info_print_table_row(2, "schnorrsig module", "disabled");
+#endif
 	php_info_print_table_row(2, "musig module", "disabled");
 	php_info_print_table_row(2, "ellswift module", "disabled");
 	php_info_print_table_row(2, "silentpayments module", "disabled");

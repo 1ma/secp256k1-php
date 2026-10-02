@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: e804f25d62e3e11b9a765f5d38b6b1d5cd2077de */
+ * Stub hash: 71afd575af84c6a8912b8faa6ded74b2d08193c1 */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_seckey_verify, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
@@ -144,6 +144,25 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_keypair_xonly_tweak_ad
 ZEND_END_ARG_INFO()
 #endif
 
+#if defined(HAVE_SECP256K1_SCHNORRSIG)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_schnorrsig_sign32, 0, 2, MAY_BE_STRING|MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, msghash32, IS_STRING, 0)
+	ZEND_ARG_OBJ_INFO(0, keypair, secp256k1_keypair, 0)
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, aux_rand32, IS_STRING, 1, "null")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_schnorrsig_sign_custom, 0, 2, MAY_BE_STRING|MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, msg, IS_STRING, 0)
+	ZEND_ARG_OBJ_INFO(0, keypair, secp256k1_keypair, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_schnorrsig_verify, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, sig64, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, msg, IS_STRING, 0)
+	ZEND_ARG_OBJ_INFO(0, pubkey, secp256k1_xonly_pubkey, 0)
+ZEND_END_ARG_INFO()
+#endif
+
 ZEND_FUNCTION(secp256k1_ec_seckey_verify);
 ZEND_FUNCTION(secp256k1_ec_pubkey_create);
 ZEND_FUNCTION(secp256k1_ec_pubkey_parse);
@@ -179,6 +198,11 @@ ZEND_FUNCTION(secp256k1_keypair_pub);
 ZEND_FUNCTION(secp256k1_keypair_xonly_pub);
 ZEND_FUNCTION(secp256k1_keypair_sec);
 ZEND_FUNCTION(secp256k1_keypair_xonly_tweak_add);
+#endif
+#if defined(HAVE_SECP256K1_SCHNORRSIG)
+ZEND_FUNCTION(secp256k1_schnorrsig_sign32);
+ZEND_FUNCTION(secp256k1_schnorrsig_sign_custom);
+ZEND_FUNCTION(secp256k1_schnorrsig_verify);
 #endif
 
 static const zend_function_entry ext_functions[] = {
@@ -217,6 +241,11 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_keypair_xonly_pub, arginfo_secp256k1_keypair_xonly_pub)
 	ZEND_FE(secp256k1_keypair_sec, arginfo_secp256k1_keypair_sec)
 	ZEND_FE(secp256k1_keypair_xonly_tweak_add, arginfo_secp256k1_keypair_xonly_tweak_add)
+#endif
+#if defined(HAVE_SECP256K1_SCHNORRSIG)
+	ZEND_FE(secp256k1_schnorrsig_sign32, arginfo_secp256k1_schnorrsig_sign32)
+	ZEND_FE(secp256k1_schnorrsig_sign_custom, arginfo_secp256k1_schnorrsig_sign_custom)
+	ZEND_FE(secp256k1_schnorrsig_verify, arginfo_secp256k1_schnorrsig_verify)
 #endif
 	ZEND_FE_END
 };
