@@ -75,3 +75,25 @@ function secp256k1_ec_pubkey_cmp(secp256k1_pubkey $pubkey1, secp256k1_pubkey $pu
 #if defined(HAVE_SECP256K1_ECDH)
 function secp256k1_ecdh(secp256k1_pubkey $pubkey, string $seckey32): string|false {}
 #endif
+
+#if defined(HAVE_SECP256K1_EXTRAKEYS)
+/**
+ * @strict-properties
+ * @not-serializable
+ */
+final class secp256k1_xonly_pubkey
+{
+}
+
+function secp256k1_xonly_pubkey_parse(string $input32): secp256k1_xonly_pubkey|false {}
+
+function secp256k1_xonly_pubkey_serialize(secp256k1_xonly_pubkey $pubkey): string {}
+
+function secp256k1_xonly_pubkey_cmp(secp256k1_xonly_pubkey $pk1, secp256k1_xonly_pubkey $pk2): int {}
+
+function secp256k1_xonly_pubkey_from_pubkey(secp256k1_pubkey $pubkey, int &$parity): secp256k1_xonly_pubkey {}
+
+function secp256k1_xonly_pubkey_tweak_add(secp256k1_xonly_pubkey $pubkey, string $tweak32): secp256k1_pubkey|false {}
+
+function secp256k1_xonly_pubkey_tweak_add_check(string $tweaked_pubkey32, int $tweaked_pk_parity, secp256k1_xonly_pubkey $internal_pubkey, string $tweak32): bool {}
+#endif

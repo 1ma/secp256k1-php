@@ -1,9 +1,5 @@
 /* secp256k1 extension for PHP */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #include "php.h"
 #include "ext/standard/info.h"
 #if PHP_VERSION_ID >= 80400
@@ -20,9 +16,15 @@ secp256k1_context *secp256k1_ctx = NULL;
 
 zend_class_entry *secp256k1_pubkey_ce;
 zend_class_entry *secp256k1_ecdsa_sig_ce;
+#ifdef HAVE_SECP256K1_EXTRAKEYS
+zend_class_entry *secp256k1_xonly_pubkey_ce;
+#endif
 
 static zend_object_handlers secp256k1_pubkey_handlers;
 static zend_object_handlers secp256k1_ecdsa_sig_handlers;
+#ifdef HAVE_SECP256K1_EXTRAKEYS
+static zend_object_handlers secp256k1_xonly_pubkey_handlers;
+#endif
 
 zend_object *secp256k1_pubkey_create_object(zend_class_entry *ce)
 {
@@ -44,6 +46,18 @@ zend_object *secp256k1_ecdsa_sig_create_object(zend_class_entry *ce)
 	return &intern->std;
 }
 
+#ifdef HAVE_SECP256K1_EXTRAKEYS
+zend_object *secp256k1_xonly_pubkey_create_object(zend_class_entry *ce)
+{
+	secp256k1_xonly_pubkey_obj *intern = zend_object_alloc(sizeof(secp256k1_xonly_pubkey_obj), ce);
+
+	zend_object_std_init(&intern->std, ce);
+	intern->std.handlers = &secp256k1_xonly_pubkey_handlers;
+
+	return &intern->std;
+}
+#endif
+
 static zend_object *secp256k1_pubkey_deny_new(zend_class_entry *ce)
 {
 	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_ec_pubkey_create() or secp256k1_ec_pubkey_parse()", ZSTR_VAL(ce->name));
@@ -55,6 +69,14 @@ static zend_object *secp256k1_ecdsa_sig_deny_new(zend_class_entry *ce)
 	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_ecdsa_signature_parse_compact() or secp256k1_ecdsa_signature_parse_der()", ZSTR_VAL(ce->name));
 	return zend_objects_new(ce);
 }
+
+#ifdef HAVE_SECP256K1_EXTRAKEYS
+static zend_object *secp256k1_xonly_pubkey_deny_new(zend_class_entry *ce)
+{
+	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_xonly_pubkey_parse() or secp256k1_xonly_pubkey_from_pubkey()", ZSTR_VAL(ce->name));
+	return zend_objects_new(ce);
+}
+#endif
 
 static void secp256k1_pubkey_free_object(zend_object *obj)
 {
@@ -71,6 +93,16 @@ static void secp256k1_ecdsa_sig_free_object(zend_object *obj)
 	explicit_bzero(&intern->sig, sizeof(secp256k1_ecdsa_signature));
 	zend_object_std_dtor(&intern->std);
 }
+
+#ifdef HAVE_SECP256K1_EXTRAKEYS
+static void secp256k1_xonly_pubkey_free_object(zend_object *obj)
+{
+	secp256k1_xonly_pubkey_obj *intern = secp256k1_xonly_pubkey_from_obj(obj);
+
+	explicit_bzero(&intern->xonly_pubkey, sizeof(secp256k1_xonly_pubkey));
+	zend_object_std_dtor(&intern->std);
+}
+#endif
 
 PHP_MINIT_FUNCTION(secp256k1)
 {
@@ -105,6 +137,16 @@ PHP_MINIT_FUNCTION(secp256k1)
 	secp256k1_ecdsa_sig_handlers.offset = offsetof(secp256k1_ecdsa_sig_obj, std);
 	secp256k1_ecdsa_sig_handlers.free_obj = secp256k1_ecdsa_sig_free_object;
 	secp256k1_ecdsa_sig_handlers.clone_obj = NULL;
+
+#ifdef HAVE_SECP256K1_EXTRAKEYS
+	secp256k1_xonly_pubkey_ce = register_class_secp256k1_xonly_pubkey();
+	secp256k1_xonly_pubkey_ce->create_object = secp256k1_xonly_pubkey_deny_new;
+
+	memcpy(&secp256k1_xonly_pubkey_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	secp256k1_xonly_pubkey_handlers.offset = offsetof(secp256k1_xonly_pubkey_obj, std);
+	secp256k1_xonly_pubkey_handlers.free_obj = secp256k1_xonly_pubkey_free_object;
+	secp256k1_xonly_pubkey_handlers.clone_obj = NULL;
+#endif
 
 	register_secp256k1_symbols(module_number);
 
@@ -151,7 +193,11 @@ PHP_MINFO_FUNCTION(secp256k1)
 	php_info_print_table_row(2, "ecdh module", "disabled");
 #endif
 	php_info_print_table_row(2, "recovery module", "disabled");
+#ifdef HAVE_SECP256K1_EXTRAKEYS
+	php_info_print_table_row(2, "extrakeys module", "enabled");
+#else
 	php_info_print_table_row(2, "extrakeys module", "disabled");
+#endif
 	php_info_print_table_row(2, "schnorrsig module", "disabled");
 	php_info_print_table_row(2, "musig module", "disabled");
 	php_info_print_table_row(2, "ellswift module", "disabled");
