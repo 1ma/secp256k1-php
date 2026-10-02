@@ -1,4 +1,4 @@
-#include "ext_secp256k1_core.h"
+#include "secp256k1_module.h"
 
 PHP_FUNCTION(secp256k1_xonly_pubkey_parse)
 {

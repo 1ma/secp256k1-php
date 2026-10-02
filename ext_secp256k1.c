@@ -1,4 +1,4 @@
-#include "ext_secp256k1_core.h"
+#include "secp256k1_module.h"
 
 PHP_FUNCTION(secp256k1_ec_seckey_verify)
 {
@@ -447,4 +447,21 @@ PHP_FUNCTION(secp256k1_ec_pubkey_cmp)
 	int result = secp256k1_ec_pubkey_cmp(secp256k1_ctx, &pk1->pubkey, &pk2->pubkey);
 
 	RETURN_LONG(result > 0 ? 1 : (result < 0 ? -1 : 0));
+}
+
+PHP_FUNCTION(secp256k1_tagged_sha256)
+{
+	char *tag, *msg;
+	size_t tag_len, msg_len;
+	unsigned char hash[32];
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_STRING(tag, tag_len)
+		Z_PARAM_STRING(msg, msg_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	int ok = secp256k1_tagged_sha256(secp256k1_ctx, hash, (const unsigned char *)tag, tag_len, (const unsigned char *)msg, msg_len);
+	(void)ok;
+
+	RETURN_STRINGL((char *)hash, 32);
 }

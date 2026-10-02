@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: e7400ac964824378ff3ed0c422b18ef0353d216f */
+ * Stub hash: e804f25d62e3e11b9a765f5d38b6b1d5cd2077de */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_seckey_verify, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
@@ -76,6 +76,11 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_pubkey_cmp, 0, 2, IS_LONG, 0)
 	ZEND_ARG_OBJ_INFO(0, pubkey1, secp256k1_pubkey, 0)
 	ZEND_ARG_OBJ_INFO(0, pubkey2, secp256k1_pubkey, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_tagged_sha256, 0, 2, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, tag, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, msg, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
 #if defined(HAVE_SECP256K1_ECDH)
@@ -158,6 +163,7 @@ ZEND_FUNCTION(secp256k1_ec_pubkey_tweak_add);
 ZEND_FUNCTION(secp256k1_ec_pubkey_tweak_mul);
 ZEND_FUNCTION(secp256k1_ec_pubkey_combine);
 ZEND_FUNCTION(secp256k1_ec_pubkey_cmp);
+ZEND_FUNCTION(secp256k1_tagged_sha256);
 #if defined(HAVE_SECP256K1_ECDH)
 ZEND_FUNCTION(secp256k1_ecdh);
 #endif
@@ -195,6 +201,7 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_ec_pubkey_tweak_mul, arginfo_secp256k1_ec_pubkey_tweak_mul)
 	ZEND_FE(secp256k1_ec_pubkey_combine, arginfo_secp256k1_ec_pubkey_combine)
 	ZEND_FE(secp256k1_ec_pubkey_cmp, arginfo_secp256k1_ec_pubkey_cmp)
+	ZEND_FE(secp256k1_tagged_sha256, arginfo_secp256k1_tagged_sha256)
 #if defined(HAVE_SECP256K1_ECDH)
 	ZEND_FE(secp256k1_ecdh, arginfo_secp256k1_ecdh)
 #endif

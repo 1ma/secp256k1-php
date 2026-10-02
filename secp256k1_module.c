@@ -8,7 +8,7 @@
 # include "ext/random/php_random.h"
 #endif
 #include "php_secp256k1.h"
-#include "ext_secp256k1_core.h"
+#include "secp256k1_module.h"
 
 #include "secp256k1_arginfo.h"
 

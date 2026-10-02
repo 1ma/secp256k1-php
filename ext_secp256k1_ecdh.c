@@ -1,4 +1,4 @@
-#include "ext_secp256k1_core.h"
+#include "secp256k1_module.h"
 
 #include <secp256k1_ecdh.h>
 
