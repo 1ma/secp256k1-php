@@ -1,8 +1,4 @@
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
-#include "secp256k1_core.h"
+#include "ext_secp256k1_core.h"
 
 #include <secp256k1_ecdh.h>
 

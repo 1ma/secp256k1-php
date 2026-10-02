@@ -43,12 +43,12 @@ AS_VAR_IF([PHP_SECP256K1], [no],, [
   PHP_EVAL_LIBLINE([$LIBSECP256K1_LIBS], [SECP256K1_SHARED_LIBADD])
 
   dnl Optional modules: detect symbols and add sources conditionally.
-  PHP_SECP256K1_SOURCES="secp256k1_core.c"
+  PHP_SECP256K1_SOURCES="ext_secp256k1_core.c ext_secp256k1_ecdsa.c"
 
   PHP_CHECK_LIBRARY([secp256k1], [secp256k1_ecdh],
     [AC_DEFINE([HAVE_SECP256K1_ECDH], [1],
       [Define to 1 if libsecp256k1 has the ECDH module.])
-     PHP_SECP256K1_SOURCES="$PHP_SECP256K1_SOURCES secp256k1_ecdh.c"],
+     PHP_SECP256K1_SOURCES="$PHP_SECP256K1_SOURCES ext_secp256k1_ecdh.c"],
     [],
     [$LIBSECP256K1_LIBS])
 
