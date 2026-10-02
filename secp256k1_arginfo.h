@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 384520575ea48c44cf59949dee480d715fb2425e */
+ * Stub hash: e7400ac964824378ff3ed0c422b18ef0353d216f */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_seckey_verify, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
@@ -115,6 +115,28 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_xonly_pubkey_tweak_add
 	ZEND_ARG_OBJ_INFO(0, internal_pubkey, secp256k1_xonly_pubkey, 0)
 	ZEND_ARG_TYPE_INFO(0, tweak32, IS_STRING, 0)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_keypair_create, 0, 1, secp256k1_keypair, MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_secp256k1_keypair_pub, 0, 1, secp256k1_pubkey, 0)
+	ZEND_ARG_OBJ_INFO(0, keypair, secp256k1_keypair, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_secp256k1_keypair_xonly_pub, 0, 2, secp256k1_xonly_pubkey, 0)
+	ZEND_ARG_OBJ_INFO(0, keypair, secp256k1_keypair, 0)
+	ZEND_ARG_TYPE_INFO(1, parity, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_keypair_sec, 0, 1, IS_STRING, 0)
+	ZEND_ARG_OBJ_INFO(0, keypair, secp256k1_keypair, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_keypair_xonly_tweak_add, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_OBJ_INFO(1, keypair, secp256k1_keypair, 0)
+	ZEND_ARG_TYPE_INFO(0, tweak32, IS_STRING, 0)
+ZEND_END_ARG_INFO()
 #endif
 
 ZEND_FUNCTION(secp256k1_ec_seckey_verify);
@@ -146,6 +168,11 @@ ZEND_FUNCTION(secp256k1_xonly_pubkey_cmp);
 ZEND_FUNCTION(secp256k1_xonly_pubkey_from_pubkey);
 ZEND_FUNCTION(secp256k1_xonly_pubkey_tweak_add);
 ZEND_FUNCTION(secp256k1_xonly_pubkey_tweak_add_check);
+ZEND_FUNCTION(secp256k1_keypair_create);
+ZEND_FUNCTION(secp256k1_keypair_pub);
+ZEND_FUNCTION(secp256k1_keypair_xonly_pub);
+ZEND_FUNCTION(secp256k1_keypair_sec);
+ZEND_FUNCTION(secp256k1_keypair_xonly_tweak_add);
 #endif
 
 static const zend_function_entry ext_functions[] = {
@@ -178,6 +205,11 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_xonly_pubkey_from_pubkey, arginfo_secp256k1_xonly_pubkey_from_pubkey)
 	ZEND_FE(secp256k1_xonly_pubkey_tweak_add, arginfo_secp256k1_xonly_pubkey_tweak_add)
 	ZEND_FE(secp256k1_xonly_pubkey_tweak_add_check, arginfo_secp256k1_xonly_pubkey_tweak_add_check)
+	ZEND_FE(secp256k1_keypair_create, arginfo_secp256k1_keypair_create)
+	ZEND_FE(secp256k1_keypair_pub, arginfo_secp256k1_keypair_pub)
+	ZEND_FE(secp256k1_keypair_xonly_pub, arginfo_secp256k1_keypair_xonly_pub)
+	ZEND_FE(secp256k1_keypair_sec, arginfo_secp256k1_keypair_sec)
+	ZEND_FE(secp256k1_keypair_xonly_tweak_add, arginfo_secp256k1_keypair_xonly_tweak_add)
 #endif
 	ZEND_FE_END
 };
@@ -224,6 +256,23 @@ static zend_class_entry *register_class_secp256k1_xonly_pubkey(void)
 	zend_class_entry ce, *class_entry;
 
 	INIT_CLASS_ENTRY(ce, "secp256k1_xonly_pubkey", NULL);
+#if (PHP_VERSION_ID >= 80400)
+	class_entry = zend_register_internal_class_with_flags(&ce, NULL, ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE);
+#else
+	class_entry = zend_register_internal_class_ex(&ce, NULL);
+	class_entry->ce_flags |= ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE;
+#endif
+
+	return class_entry;
+}
+#endif
+
+#if defined(HAVE_SECP256K1_EXTRAKEYS)
+static zend_class_entry *register_class_secp256k1_keypair(void)
+{
+	zend_class_entry ce, *class_entry;
+
+	INIT_CLASS_ENTRY(ce, "secp256k1_keypair", NULL);
 #if (PHP_VERSION_ID >= 80400)
 	class_entry = zend_register_internal_class_with_flags(&ce, NULL, ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE);
 #else

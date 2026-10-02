@@ -143,3 +143,114 @@ PHP_FUNCTION(secp256k1_xonly_pubkey_tweak_add_check)
 		(const unsigned char *)tweak32
 	));
 }
+
+/* keypair functions */
+
+PHP_FUNCTION(secp256k1_keypair_create)
+{
+	char *seckey;
+	size_t seckey_len;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(seckey, seckey_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (seckey_len != 32) {
+		zend_argument_value_error(1, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	zend_object *obj = secp256k1_keypair_create_object(secp256k1_keypair_ce);
+	secp256k1_keypair_obj *intern = secp256k1_keypair_from_obj(obj);
+
+	if (!secp256k1_keypair_create(secp256k1_ctx, &intern->keypair, (const unsigned char *)seckey)) {
+		zend_object_release(obj);
+		RETURN_FALSE;
+	}
+
+	RETURN_OBJ(obj);
+}
+
+PHP_FUNCTION(secp256k1_keypair_pub)
+{
+	zval *keypair_zval;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_OBJECT_OF_CLASS(keypair_zval, secp256k1_keypair_ce)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
+
+	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
+	secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(obj);
+
+	int ok = secp256k1_keypair_pub(secp256k1_ctx, &pubkey_intern->pubkey, &keypair_intern->keypair);
+	(void)ok;
+
+	RETURN_OBJ(obj);
+}
+
+PHP_FUNCTION(secp256k1_keypair_xonly_pub)
+{
+	zval *keypair_zval, *parity_zval;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_OBJECT_OF_CLASS(keypair_zval, secp256k1_keypair_ce)
+		Z_PARAM_ZVAL(parity_zval)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
+
+	zend_object *obj = secp256k1_xonly_pubkey_create_object(secp256k1_xonly_pubkey_ce);
+	secp256k1_xonly_pubkey_obj *xonly_intern = secp256k1_xonly_pubkey_from_obj(obj);
+
+	int parity;
+	int ok = secp256k1_keypair_xonly_pub(secp256k1_ctx, &xonly_intern->xonly_pubkey, &parity, &keypair_intern->keypair);
+	(void)ok;
+
+	ZEND_TRY_ASSIGN_REF_LONG(parity_zval, parity);
+	RETURN_OBJ(obj);
+}
+
+PHP_FUNCTION(secp256k1_keypair_sec)
+{
+	zval *keypair_zval;
+	unsigned char seckey[32];
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_OBJECT_OF_CLASS(keypair_zval, secp256k1_keypair_ce)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_keypair_obj *intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
+
+	int ok = secp256k1_keypair_sec(secp256k1_ctx, seckey, &intern->keypair);
+	(void)ok;
+
+	RETVAL_STRINGL((char *)seckey, 32);
+	explicit_bzero(seckey, sizeof(seckey));
+}
+
+PHP_FUNCTION(secp256k1_keypair_xonly_tweak_add)
+{
+	zval *keypair_zval;
+	char *tweak;
+	size_t tweak_len;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_OBJECT_OF_CLASS_EX(keypair_zval, secp256k1_keypair_ce, 0, 1)
+		Z_PARAM_STRING(tweak, tweak_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (tweak_len != 32) {
+		zend_argument_value_error(2, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	secp256k1_keypair_obj *intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
+
+	if (!secp256k1_keypair_xonly_tweak_add(secp256k1_ctx, &intern->keypair, (const unsigned char *)tweak)) {
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
+}

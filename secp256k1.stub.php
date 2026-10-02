@@ -96,4 +96,22 @@ function secp256k1_xonly_pubkey_from_pubkey(secp256k1_pubkey $pubkey, int &$pari
 function secp256k1_xonly_pubkey_tweak_add(secp256k1_xonly_pubkey $pubkey, string $tweak32): secp256k1_pubkey|false {}
 
 function secp256k1_xonly_pubkey_tweak_add_check(string $tweaked_pubkey32, int $tweaked_pk_parity, secp256k1_xonly_pubkey $internal_pubkey, string $tweak32): bool {}
+
+/**
+ * @strict-properties
+ * @not-serializable
+ */
+final class secp256k1_keypair
+{
+}
+
+function secp256k1_keypair_create(string $seckey32): secp256k1_keypair|false {}
+
+function secp256k1_keypair_pub(secp256k1_keypair $keypair): secp256k1_pubkey {}
+
+function secp256k1_keypair_xonly_pub(secp256k1_keypair $keypair, int &$parity): secp256k1_xonly_pubkey {}
+
+function secp256k1_keypair_sec(secp256k1_keypair $keypair): string {}
+
+function secp256k1_keypair_xonly_tweak_add(secp256k1_keypair &$keypair, string $tweak32): bool {}
 #endif
