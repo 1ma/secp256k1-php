@@ -147,28 +147,28 @@ PHP_MINFO_FUNCTION(secp256k1)
 	php_info_print_table_row(2, "secp256k1 support", "enabled");
 	php_info_print_table_row(2, "secp256k1 version", SECP256K1_LIB_VERSION);
 #ifdef HAVE_SECP256K1_ECDH
-	php_info_print_table_row(2, "ecdh module", "enabled");
+	php_info_print_table_row(2, "ecdh module", "On");
 #else
-	php_info_print_table_row(2, "ecdh module", "disabled");
+	php_info_print_table_row(2, "ecdh module", "Off");
 #endif
 #ifdef HAVE_SECP256K1_RECOVERY
-	php_info_print_table_row(2, "recovery module", "enabled");
+	php_info_print_table_row(2, "recovery module", "On");
 #else
-	php_info_print_table_row(2, "recovery module", "disabled");
+	php_info_print_table_row(2, "recovery module", "Off");
 #endif
 #ifdef HAVE_SECP256K1_EXTRAKEYS
-	php_info_print_table_row(2, "extrakeys module", "enabled");
+	php_info_print_table_row(2, "extrakeys module", "On");
 #else
-	php_info_print_table_row(2, "extrakeys module", "disabled");
+	php_info_print_table_row(2, "extrakeys module", "Off");
 #endif
 #ifdef HAVE_SECP256K1_SCHNORRSIG
-	php_info_print_table_row(2, "schnorrsig module", "enabled");
+	php_info_print_table_row(2, "schnorrsig module", "On");
 #else
-	php_info_print_table_row(2, "schnorrsig module", "disabled");
+	php_info_print_table_row(2, "schnorrsig module", "Off");
 #endif
-	php_info_print_table_row(2, "musig module", "disabled");
-	php_info_print_table_row(2, "ellswift module", "disabled");
-	php_info_print_table_row(2, "silentpayments module", "disabled");
+	php_info_print_table_row(2, "ellswift module", "Off");
+	php_info_print_table_row(2, "musig module", "Off");
+	php_info_print_table_row(2, "silentpayments module", "Off");
 	php_info_print_table_end();
 }
 

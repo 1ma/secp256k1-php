@@ -18,8 +18,13 @@
     },
     "scripts": {
         "ext:clean": "make distclean",
-        "ext:build": ["phpize", "./configure", "make"],
-        "ext:build-cov": ["phpize", "CFLAGS=\"--coverage -O0 -g\" LDFLAGS=\"--coverage\" ./configure", "make"],
+        "ext:secp256k1": [
+            "cmake -S secp256k1 -B $(pwd)/build/secp256k1 -DCMAKE_INSTALL_PREFIX=$(pwd)/build/secp256k1 -DSECP256K1_ENABLE_MODULE_RECOVERY=ON -DSECP256K1_BUILD_BENCHMARK=OFF -DSECP256K1_BUILD_CTIME_TESTS=OFF -DSECP256K1_BUILD_TESTS=OFF -DSECP256K1_BUILD_EXHAUSTIVE_TESTS=OFF",
+            "cmake --build $(pwd)/build/secp256k1 -j$(nproc)",
+            "cmake --install $(pwd)/build/secp256k1"
+        ],
+        "ext:build": ["phpize", "PKG_CONFIG_PATH=$(pwd)/build/secp256k1/lib/pkgconfig ./configure", "make"],
+        "ext:build-cov": ["phpize", "PKG_CONFIG_PATH=$(pwd)/build/secp256k1/lib/pkgconfig CFLAGS=\"--coverage -O0 -g\" LDFLAGS=\"--coverage\" ./configure", "make"],
         "ext:test": "make test TESTS=\"-q --show-diff\"",
         "ext:test-valgrind": "make test TESTS=\"-q -m --show-diff --show-mem\" VALGRIND_OPTS=\"--gen-suppressions=all --suppressions=valgrind-false-positives.supp\"",
         "ext:cov-report": [
@@ -29,6 +34,7 @@
         ]
     },
     "scripts-descriptions": {
+        "ext:secp256k1": "Build libsecp256k1 from the git submodule with all modules enabled",
         "ext:clean": "Clean up build artifacts",
         "ext:build": "Build extension with default configuration",
         "ext:build-cov": "Build extension with coverage instrumentation",
