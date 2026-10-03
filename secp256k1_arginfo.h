@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 71afd575af84c6a8912b8faa6ded74b2d08193c1 */
+ * Stub hash: aea376468b2e5a8856313bc2659083233101db5e */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_seckey_verify, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
@@ -144,6 +144,32 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_keypair_xonly_tweak_ad
 ZEND_END_ARG_INFO()
 #endif
 
+#if defined(HAVE_SECP256K1_RECOVERY)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_ecdsa_recoverable_signature_parse_compact, 0, 2, secp256k1_ecdsa_recoverable_signature, MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, sig64, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, recid, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ecdsa_recoverable_signature_serialize_compact, 0, 2, IS_STRING, 0)
+	ZEND_ARG_OBJ_INFO(0, sig, secp256k1_ecdsa_recoverable_signature, 0)
+	ZEND_ARG_TYPE_INFO(1, recid, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_secp256k1_ecdsa_recoverable_signature_convert, 0, 1, secp256k1_ecdsa_signature, 0)
+	ZEND_ARG_OBJ_INFO(0, sig, secp256k1_ecdsa_recoverable_signature, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_ecdsa_sign_recoverable, 0, 2, secp256k1_ecdsa_recoverable_signature, MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, msghash32, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_ecdsa_recover, 0, 2, secp256k1_pubkey, MAY_BE_FALSE)
+	ZEND_ARG_OBJ_INFO(0, sig, secp256k1_ecdsa_recoverable_signature, 0)
+	ZEND_ARG_TYPE_INFO(0, msghash32, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+#endif
+
 #if defined(HAVE_SECP256K1_SCHNORRSIG)
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_schnorrsig_sign32, 0, 2, MAY_BE_STRING|MAY_BE_FALSE)
 	ZEND_ARG_TYPE_INFO(0, msghash32, IS_STRING, 0)
@@ -199,6 +225,13 @@ ZEND_FUNCTION(secp256k1_keypair_xonly_pub);
 ZEND_FUNCTION(secp256k1_keypair_sec);
 ZEND_FUNCTION(secp256k1_keypair_xonly_tweak_add);
 #endif
+#if defined(HAVE_SECP256K1_RECOVERY)
+ZEND_FUNCTION(secp256k1_ecdsa_recoverable_signature_parse_compact);
+ZEND_FUNCTION(secp256k1_ecdsa_recoverable_signature_serialize_compact);
+ZEND_FUNCTION(secp256k1_ecdsa_recoverable_signature_convert);
+ZEND_FUNCTION(secp256k1_ecdsa_sign_recoverable);
+ZEND_FUNCTION(secp256k1_ecdsa_recover);
+#endif
 #if defined(HAVE_SECP256K1_SCHNORRSIG)
 ZEND_FUNCTION(secp256k1_schnorrsig_sign32);
 ZEND_FUNCTION(secp256k1_schnorrsig_sign_custom);
@@ -241,6 +274,13 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_keypair_xonly_pub, arginfo_secp256k1_keypair_xonly_pub)
 	ZEND_FE(secp256k1_keypair_sec, arginfo_secp256k1_keypair_sec)
 	ZEND_FE(secp256k1_keypair_xonly_tweak_add, arginfo_secp256k1_keypair_xonly_tweak_add)
+#endif
+#if defined(HAVE_SECP256K1_RECOVERY)
+	ZEND_FE(secp256k1_ecdsa_recoverable_signature_parse_compact, arginfo_secp256k1_ecdsa_recoverable_signature_parse_compact)
+	ZEND_FE(secp256k1_ecdsa_recoverable_signature_serialize_compact, arginfo_secp256k1_ecdsa_recoverable_signature_serialize_compact)
+	ZEND_FE(secp256k1_ecdsa_recoverable_signature_convert, arginfo_secp256k1_ecdsa_recoverable_signature_convert)
+	ZEND_FE(secp256k1_ecdsa_sign_recoverable, arginfo_secp256k1_ecdsa_sign_recoverable)
+	ZEND_FE(secp256k1_ecdsa_recover, arginfo_secp256k1_ecdsa_recover)
 #endif
 #if defined(HAVE_SECP256K1_SCHNORRSIG)
 	ZEND_FE(secp256k1_schnorrsig_sign32, arginfo_secp256k1_schnorrsig_sign32)
@@ -309,6 +349,23 @@ static zend_class_entry *register_class_secp256k1_keypair(void)
 	zend_class_entry ce, *class_entry;
 
 	INIT_CLASS_ENTRY(ce, "secp256k1_keypair", NULL);
+#if (PHP_VERSION_ID >= 80400)
+	class_entry = zend_register_internal_class_with_flags(&ce, NULL, ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE);
+#else
+	class_entry = zend_register_internal_class_ex(&ce, NULL);
+	class_entry->ce_flags |= ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE;
+#endif
+
+	return class_entry;
+}
+#endif
+
+#if defined(HAVE_SECP256K1_RECOVERY)
+static zend_class_entry *register_class_secp256k1_ecdsa_recoverable_signature(void)
+{
+	zend_class_entry ce, *class_entry;
+
+	INIT_CLASS_ENTRY(ce, "secp256k1_ecdsa_recoverable_signature", NULL);
 #if (PHP_VERSION_ID >= 80400)
 	class_entry = zend_register_internal_class_with_flags(&ce, NULL, ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE);
 #else

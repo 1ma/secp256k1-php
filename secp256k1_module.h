@@ -10,6 +10,9 @@
 #ifdef HAVE_SECP256K1_EXTRAKEYS
 #include <secp256k1_extrakeys.h>
 #endif
+#ifdef HAVE_SECP256K1_RECOVERY
+#include <secp256k1_recovery.h>
+#endif
 
 extern secp256k1_context *secp256k1_ctx;
 
@@ -19,12 +22,18 @@ extern zend_class_entry *secp256k1_ecdsa_sig_ce;
 extern zend_class_entry *secp256k1_xonly_pubkey_ce;
 extern zend_class_entry *secp256k1_keypair_ce;
 #endif
+#ifdef HAVE_SECP256K1_RECOVERY
+extern zend_class_entry *secp256k1_ecdsa_recoverable_sig_ce;
+#endif
 
 zend_object *secp256k1_pubkey_create_object(zend_class_entry *ce);
 zend_object *secp256k1_ecdsa_sig_create_object(zend_class_entry *ce);
 #ifdef HAVE_SECP256K1_EXTRAKEYS
 zend_object *secp256k1_xonly_pubkey_create_object(zend_class_entry *ce);
 zend_object *secp256k1_keypair_create_object(zend_class_entry *ce);
+#endif
+#ifdef HAVE_SECP256K1_RECOVERY
+zend_object *secp256k1_ecdsa_recoverable_sig_create_object(zend_class_entry *ce);
 #endif
 
 typedef struct {
@@ -49,6 +58,13 @@ typedef struct {
 } secp256k1_keypair_obj;
 #endif
 
+#ifdef HAVE_SECP256K1_RECOVERY
+typedef struct {
+	secp256k1_ecdsa_recoverable_signature sig;
+	zend_object std;
+} secp256k1_ecdsa_recoverable_sig_obj;
+#endif
+
 static inline secp256k1_pubkey_obj *secp256k1_pubkey_from_obj(zend_object *obj)
 {
 	return (secp256k1_pubkey_obj *)((char *)obj - offsetof(secp256k1_pubkey_obj, std));
@@ -68,6 +84,13 @@ static inline secp256k1_xonly_pubkey_obj *secp256k1_xonly_pubkey_from_obj(zend_o
 static inline secp256k1_keypair_obj *secp256k1_keypair_from_obj(zend_object *obj)
 {
 	return (secp256k1_keypair_obj *)((char *)obj - offsetof(secp256k1_keypair_obj, std));
+}
+#endif
+
+#ifdef HAVE_SECP256K1_RECOVERY
+static inline secp256k1_ecdsa_recoverable_sig_obj *secp256k1_ecdsa_recoverable_sig_from_obj(zend_object *obj)
+{
+	return (secp256k1_ecdsa_recoverable_sig_obj *)((char *)obj - offsetof(secp256k1_ecdsa_recoverable_sig_obj, std));
 }
 #endif
 

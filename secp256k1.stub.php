@@ -118,6 +118,26 @@ function secp256k1_keypair_sec(secp256k1_keypair $keypair): string {}
 function secp256k1_keypair_xonly_tweak_add(secp256k1_keypair &$keypair, string $tweak32): bool {}
 #endif
 
+#if defined(HAVE_SECP256K1_RECOVERY)
+/**
+ * @strict-properties
+ * @not-serializable
+ */
+final class secp256k1_ecdsa_recoverable_signature
+{
+}
+
+function secp256k1_ecdsa_recoverable_signature_parse_compact(string $sig64, int $recid): secp256k1_ecdsa_recoverable_signature|false {}
+
+function secp256k1_ecdsa_recoverable_signature_serialize_compact(secp256k1_ecdsa_recoverable_signature $sig, int &$recid): string {}
+
+function secp256k1_ecdsa_recoverable_signature_convert(secp256k1_ecdsa_recoverable_signature $sig): secp256k1_ecdsa_signature {}
+
+function secp256k1_ecdsa_sign_recoverable(string $msghash32, string $seckey32): secp256k1_ecdsa_recoverable_signature|false {}
+
+function secp256k1_ecdsa_recover(secp256k1_ecdsa_recoverable_signature $sig, string $msghash32): secp256k1_pubkey|false {}
+#endif
+
 #if defined(HAVE_SECP256K1_SCHNORRSIG)
 function secp256k1_schnorrsig_sign32(string $msghash32, secp256k1_keypair $keypair, ?string $aux_rand32 = null): string|false {}
 

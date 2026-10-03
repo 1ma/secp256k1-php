@@ -20,12 +20,18 @@ zend_class_entry *secp256k1_ecdsa_sig_ce;
 zend_class_entry *secp256k1_xonly_pubkey_ce;
 zend_class_entry *secp256k1_keypair_ce;
 #endif
+#ifdef HAVE_SECP256K1_RECOVERY
+zend_class_entry *secp256k1_ecdsa_recoverable_sig_ce;
+#endif
 
 static zend_object_handlers secp256k1_pubkey_handlers;
 static zend_object_handlers secp256k1_ecdsa_sig_handlers;
 #ifdef HAVE_SECP256K1_EXTRAKEYS
 static zend_object_handlers secp256k1_xonly_pubkey_handlers;
 static zend_object_handlers secp256k1_keypair_handlers;
+#endif
+#ifdef HAVE_SECP256K1_RECOVERY
+static zend_object_handlers secp256k1_ecdsa_recoverable_sig_handlers;
 #endif
 
 zend_object *secp256k1_pubkey_create_object(zend_class_entry *ce)
@@ -70,6 +76,18 @@ zend_object *secp256k1_keypair_create_object(zend_class_entry *ce)
 }
 #endif
 
+#ifdef HAVE_SECP256K1_RECOVERY
+zend_object *secp256k1_ecdsa_recoverable_sig_create_object(zend_class_entry *ce)
+{
+	secp256k1_ecdsa_recoverable_sig_obj *intern = zend_object_alloc(sizeof(secp256k1_ecdsa_recoverable_sig_obj), ce);
+
+	zend_object_std_init(&intern->std, ce);
+	intern->std.handlers = &secp256k1_ecdsa_recoverable_sig_handlers;
+
+	return &intern->std;
+}
+#endif
+
 static zend_object *secp256k1_pubkey_deny_new(zend_class_entry *ce)
 {
 	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_ec_pubkey_create() or secp256k1_ec_pubkey_parse()", ZSTR_VAL(ce->name));
@@ -92,6 +110,14 @@ static zend_object *secp256k1_xonly_pubkey_deny_new(zend_class_entry *ce)
 static zend_object *secp256k1_keypair_deny_new(zend_class_entry *ce)
 {
 	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_keypair_create()", ZSTR_VAL(ce->name));
+	return zend_objects_new(ce);
+}
+#endif
+
+#ifdef HAVE_SECP256K1_RECOVERY
+static zend_object *secp256k1_ecdsa_recoverable_sig_deny_new(zend_class_entry *ce)
+{
+	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_ecdsa_recoverable_signature_parse_compact() or secp256k1_ecdsa_sign_recoverable()", ZSTR_VAL(ce->name));
 	return zend_objects_new(ce);
 }
 #endif
@@ -126,6 +152,16 @@ static void secp256k1_keypair_free_object(zend_object *obj)
 	secp256k1_keypair_obj *intern = secp256k1_keypair_from_obj(obj);
 
 	explicit_bzero(&intern->keypair, sizeof(secp256k1_keypair));
+	zend_object_std_dtor(&intern->std);
+}
+#endif
+
+#ifdef HAVE_SECP256K1_RECOVERY
+static void secp256k1_ecdsa_recoverable_sig_free_object(zend_object *obj)
+{
+	secp256k1_ecdsa_recoverable_sig_obj *intern = secp256k1_ecdsa_recoverable_sig_from_obj(obj);
+
+	explicit_bzero(&intern->sig, sizeof(secp256k1_ecdsa_recoverable_signature));
 	zend_object_std_dtor(&intern->std);
 }
 #endif
@@ -182,6 +218,16 @@ PHP_MINIT_FUNCTION(secp256k1)
 	secp256k1_keypair_handlers.clone_obj = NULL;
 #endif
 
+#ifdef HAVE_SECP256K1_RECOVERY
+	secp256k1_ecdsa_recoverable_sig_ce = register_class_secp256k1_ecdsa_recoverable_signature();
+	secp256k1_ecdsa_recoverable_sig_ce->create_object = secp256k1_ecdsa_recoverable_sig_deny_new;
+
+	memcpy(&secp256k1_ecdsa_recoverable_sig_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	secp256k1_ecdsa_recoverable_sig_handlers.offset = offsetof(secp256k1_ecdsa_recoverable_sig_obj, std);
+	secp256k1_ecdsa_recoverable_sig_handlers.free_obj = secp256k1_ecdsa_recoverable_sig_free_object;
+	secp256k1_ecdsa_recoverable_sig_handlers.clone_obj = NULL;
+#endif
+
 	register_secp256k1_symbols(module_number);
 
 	result = SUCCESS;
@@ -226,7 +272,11 @@ PHP_MINFO_FUNCTION(secp256k1)
 #else
 	php_info_print_table_row(2, "ecdh module", "disabled");
 #endif
+#ifdef HAVE_SECP256K1_RECOVERY
+	php_info_print_table_row(2, "recovery module", "enabled");
+#else
 	php_info_print_table_row(2, "recovery module", "disabled");
+#endif
 #ifdef HAVE_SECP256K1_EXTRAKEYS
 	php_info_print_table_row(2, "extrakeys module", "enabled");
 #else

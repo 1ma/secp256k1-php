@@ -59,6 +59,13 @@ AS_VAR_IF([PHP_SECP256K1], [no],, [
     [],
     [$LIBSECP256K1_LIBS])
 
+  PHP_CHECK_LIBRARY([secp256k1], [secp256k1_ecdsa_sign_recoverable],
+    [AC_DEFINE([HAVE_SECP256K1_RECOVERY], [1],
+      [Define to 1 if libsecp256k1 has the recovery module.])
+     PHP_SECP256K1_SOURCES="$PHP_SECP256K1_SOURCES ext_secp256k1_recovery.c"],
+    [],
+    [$LIBSECP256K1_LIBS])
+
   PHP_CHECK_LIBRARY([secp256k1], [secp256k1_schnorrsig_sign32],
     [AC_DEFINE([HAVE_SECP256K1_SCHNORRSIG], [1],
       [Define to 1 if libsecp256k1 has the schnorrsig module.])
