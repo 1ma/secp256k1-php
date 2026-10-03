@@ -14,6 +14,37 @@
 
 secp256k1_context *secp256k1_ctx = NULL;
 
+#define SECP256K1_OPAQUE_HANDLERS(name, ctype, field)						\
+	static zend_object_handlers name##_handlers;							\
+	zend_object *name##_create_object(zend_class_entry *ce) {				\
+		name##_obj *intern = zend_object_alloc(sizeof(name##_obj), ce);		\
+		zend_object_std_init(&intern->std, ce);								\
+		intern->std.handlers = &name##_handlers;							\
+		return &intern->std;												\
+	}																		\
+	static void name##_free_object(zend_object *obj) {						\
+		name##_obj *intern = name##_from_obj(obj);							\
+		explicit_bzero(&intern->field, sizeof(ctype));						\
+		zend_object_std_dtor(&intern->std);									\
+	}
+
+#define SECP256K1_DENY_NEW(cls, hint)										\
+	static zend_object *cls##_deny_new(zend_class_entry *_ce) {				\
+		zend_throw_error(NULL,												\
+			"Cannot instantiate %s directly, use %s", ZSTR_VAL(_ce->name),	\
+			hint);															\
+		return zend_objects_new(_ce);										\
+	}
+
+#define SECP256K1_REGISTER_CLASS(name, register_fn)							\
+	name##_ce = register_fn();												\
+	name##_ce->create_object = name##_deny_new;								\
+	memcpy(&name##_handlers, zend_get_std_object_handlers(),				\
+		sizeof(zend_object_handlers));										\
+	name##_handlers.offset = offsetof(name##_obj, std);						\
+	name##_handlers.free_obj = name##_free_object;							\
+	name##_handlers.clone_obj = NULL
+
 zend_class_entry *secp256k1_pubkey_ce;
 zend_class_entry *secp256k1_ecdsa_sig_ce;
 #ifdef HAVE_SECP256K1_EXTRAKEYS
@@ -24,146 +55,26 @@ zend_class_entry *secp256k1_keypair_ce;
 zend_class_entry *secp256k1_ecdsa_recoverable_sig_ce;
 #endif
 
-static zend_object_handlers secp256k1_pubkey_handlers;
-static zend_object_handlers secp256k1_ecdsa_sig_handlers;
-#ifdef HAVE_SECP256K1_EXTRAKEYS
-static zend_object_handlers secp256k1_xonly_pubkey_handlers;
-static zend_object_handlers secp256k1_keypair_handlers;
-#endif
-#ifdef HAVE_SECP256K1_RECOVERY
-static zend_object_handlers secp256k1_ecdsa_recoverable_sig_handlers;
-#endif
-
-zend_object *secp256k1_pubkey_create_object(zend_class_entry *ce)
-{
-	secp256k1_pubkey_obj *intern = zend_object_alloc(sizeof(secp256k1_pubkey_obj), ce);
-
-	zend_object_std_init(&intern->std, ce);
-	intern->std.handlers = &secp256k1_pubkey_handlers;
-
-	return &intern->std;
-}
-
-zend_object *secp256k1_ecdsa_sig_create_object(zend_class_entry *ce)
-{
-	secp256k1_ecdsa_sig_obj *intern = zend_object_alloc(sizeof(secp256k1_ecdsa_sig_obj), ce);
-
-	zend_object_std_init(&intern->std, ce);
-	intern->std.handlers = &secp256k1_ecdsa_sig_handlers;
-
-	return &intern->std;
-}
+SECP256K1_OPAQUE_HANDLERS(secp256k1_pubkey, secp256k1_pubkey, pubkey)
+SECP256K1_OPAQUE_HANDLERS(secp256k1_ecdsa_sig, secp256k1_ecdsa_signature, sig)
+SECP256K1_DENY_NEW(secp256k1_pubkey,
+	"secp256k1_ec_pubkey_create() or secp256k1_ec_pubkey_parse()")
+SECP256K1_DENY_NEW(secp256k1_ecdsa_sig,
+	"secp256k1_ecdsa_signature_parse_compact() or secp256k1_ecdsa_signature_parse_der()")
 
 #ifdef HAVE_SECP256K1_EXTRAKEYS
-zend_object *secp256k1_xonly_pubkey_create_object(zend_class_entry *ce)
-{
-	secp256k1_xonly_pubkey_obj *intern = zend_object_alloc(sizeof(secp256k1_xonly_pubkey_obj), ce);
-
-	zend_object_std_init(&intern->std, ce);
-	intern->std.handlers = &secp256k1_xonly_pubkey_handlers;
-
-	return &intern->std;
-}
-
-zend_object *secp256k1_keypair_create_object(zend_class_entry *ce)
-{
-	secp256k1_keypair_obj *intern = zend_object_alloc(sizeof(secp256k1_keypair_obj), ce);
-
-	zend_object_std_init(&intern->std, ce);
-	intern->std.handlers = &secp256k1_keypair_handlers;
-
-	return &intern->std;
-}
+SECP256K1_OPAQUE_HANDLERS(secp256k1_xonly_pubkey, secp256k1_xonly_pubkey, xonly_pubkey)
+SECP256K1_OPAQUE_HANDLERS(secp256k1_keypair, secp256k1_keypair, keypair)
+SECP256K1_DENY_NEW(secp256k1_xonly_pubkey,
+	"secp256k1_xonly_pubkey_parse() or secp256k1_xonly_pubkey_from_pubkey()")
+SECP256K1_DENY_NEW(secp256k1_keypair,
+	"secp256k1_keypair_create()")
 #endif
 
 #ifdef HAVE_SECP256K1_RECOVERY
-zend_object *secp256k1_ecdsa_recoverable_sig_create_object(zend_class_entry *ce)
-{
-	secp256k1_ecdsa_recoverable_sig_obj *intern = zend_object_alloc(sizeof(secp256k1_ecdsa_recoverable_sig_obj), ce);
-
-	zend_object_std_init(&intern->std, ce);
-	intern->std.handlers = &secp256k1_ecdsa_recoverable_sig_handlers;
-
-	return &intern->std;
-}
-#endif
-
-static zend_object *secp256k1_pubkey_deny_new(zend_class_entry *ce)
-{
-	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_ec_pubkey_create() or secp256k1_ec_pubkey_parse()", ZSTR_VAL(ce->name));
-	return zend_objects_new(ce);
-}
-
-static zend_object *secp256k1_ecdsa_sig_deny_new(zend_class_entry *ce)
-{
-	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_ecdsa_signature_parse_compact() or secp256k1_ecdsa_signature_parse_der()", ZSTR_VAL(ce->name));
-	return zend_objects_new(ce);
-}
-
-#ifdef HAVE_SECP256K1_EXTRAKEYS
-static zend_object *secp256k1_xonly_pubkey_deny_new(zend_class_entry *ce)
-{
-	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_xonly_pubkey_parse() or secp256k1_xonly_pubkey_from_pubkey()", ZSTR_VAL(ce->name));
-	return zend_objects_new(ce);
-}
-
-static zend_object *secp256k1_keypair_deny_new(zend_class_entry *ce)
-{
-	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_keypair_create()", ZSTR_VAL(ce->name));
-	return zend_objects_new(ce);
-}
-#endif
-
-#ifdef HAVE_SECP256K1_RECOVERY
-static zend_object *secp256k1_ecdsa_recoverable_sig_deny_new(zend_class_entry *ce)
-{
-	zend_throw_error(NULL, "Cannot instantiate %s directly, use secp256k1_ecdsa_recoverable_signature_parse_compact() or secp256k1_ecdsa_sign_recoverable()", ZSTR_VAL(ce->name));
-	return zend_objects_new(ce);
-}
-#endif
-
-static void secp256k1_pubkey_free_object(zend_object *obj)
-{
-	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(obj);
-
-	explicit_bzero(&intern->pubkey, sizeof(secp256k1_pubkey));
-	zend_object_std_dtor(&intern->std);
-}
-
-static void secp256k1_ecdsa_sig_free_object(zend_object *obj)
-{
-	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(obj);
-
-	explicit_bzero(&intern->sig, sizeof(secp256k1_ecdsa_signature));
-	zend_object_std_dtor(&intern->std);
-}
-
-#ifdef HAVE_SECP256K1_EXTRAKEYS
-static void secp256k1_xonly_pubkey_free_object(zend_object *obj)
-{
-	secp256k1_xonly_pubkey_obj *intern = secp256k1_xonly_pubkey_from_obj(obj);
-
-	explicit_bzero(&intern->xonly_pubkey, sizeof(secp256k1_xonly_pubkey));
-	zend_object_std_dtor(&intern->std);
-}
-
-static void secp256k1_keypair_free_object(zend_object *obj)
-{
-	secp256k1_keypair_obj *intern = secp256k1_keypair_from_obj(obj);
-
-	explicit_bzero(&intern->keypair, sizeof(secp256k1_keypair));
-	zend_object_std_dtor(&intern->std);
-}
-#endif
-
-#ifdef HAVE_SECP256K1_RECOVERY
-static void secp256k1_ecdsa_recoverable_sig_free_object(zend_object *obj)
-{
-	secp256k1_ecdsa_recoverable_sig_obj *intern = secp256k1_ecdsa_recoverable_sig_from_obj(obj);
-
-	explicit_bzero(&intern->sig, sizeof(secp256k1_ecdsa_recoverable_signature));
-	zend_object_std_dtor(&intern->std);
-}
+SECP256K1_OPAQUE_HANDLERS(secp256k1_ecdsa_recoverable_sig, secp256k1_ecdsa_recoverable_signature, sig)
+SECP256K1_DENY_NEW(secp256k1_ecdsa_recoverable_sig,
+	"secp256k1_ecdsa_recoverable_signature_parse_compact() or secp256k1_ecdsa_sign_recoverable()")
 #endif
 
 PHP_MINIT_FUNCTION(secp256k1)
@@ -184,48 +95,16 @@ PHP_MINIT_FUNCTION(secp256k1)
 		goto release;
 	}
 
-	secp256k1_pubkey_ce = register_class_secp256k1_pubkey();
-	secp256k1_pubkey_ce->create_object = secp256k1_pubkey_deny_new;
-
-	memcpy(&secp256k1_pubkey_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	secp256k1_pubkey_handlers.offset = offsetof(secp256k1_pubkey_obj, std);
-	secp256k1_pubkey_handlers.free_obj = secp256k1_pubkey_free_object;
-	secp256k1_pubkey_handlers.clone_obj = NULL;
-
-	secp256k1_ecdsa_sig_ce = register_class_secp256k1_ecdsa_signature();
-	secp256k1_ecdsa_sig_ce->create_object = secp256k1_ecdsa_sig_deny_new;
-
-	memcpy(&secp256k1_ecdsa_sig_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	secp256k1_ecdsa_sig_handlers.offset = offsetof(secp256k1_ecdsa_sig_obj, std);
-	secp256k1_ecdsa_sig_handlers.free_obj = secp256k1_ecdsa_sig_free_object;
-	secp256k1_ecdsa_sig_handlers.clone_obj = NULL;
+	SECP256K1_REGISTER_CLASS(secp256k1_pubkey, register_class_secp256k1_pubkey);
+	SECP256K1_REGISTER_CLASS(secp256k1_ecdsa_sig, register_class_secp256k1_ecdsa_signature);
 
 #ifdef HAVE_SECP256K1_EXTRAKEYS
-	secp256k1_xonly_pubkey_ce = register_class_secp256k1_xonly_pubkey();
-	secp256k1_xonly_pubkey_ce->create_object = secp256k1_xonly_pubkey_deny_new;
-
-	memcpy(&secp256k1_xonly_pubkey_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	secp256k1_xonly_pubkey_handlers.offset = offsetof(secp256k1_xonly_pubkey_obj, std);
-	secp256k1_xonly_pubkey_handlers.free_obj = secp256k1_xonly_pubkey_free_object;
-	secp256k1_xonly_pubkey_handlers.clone_obj = NULL;
-
-	secp256k1_keypair_ce = register_class_secp256k1_keypair();
-	secp256k1_keypair_ce->create_object = secp256k1_keypair_deny_new;
-
-	memcpy(&secp256k1_keypair_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	secp256k1_keypair_handlers.offset = offsetof(secp256k1_keypair_obj, std);
-	secp256k1_keypair_handlers.free_obj = secp256k1_keypair_free_object;
-	secp256k1_keypair_handlers.clone_obj = NULL;
+	SECP256K1_REGISTER_CLASS(secp256k1_xonly_pubkey, register_class_secp256k1_xonly_pubkey);
+	SECP256K1_REGISTER_CLASS(secp256k1_keypair, register_class_secp256k1_keypair);
 #endif
 
 #ifdef HAVE_SECP256K1_RECOVERY
-	secp256k1_ecdsa_recoverable_sig_ce = register_class_secp256k1_ecdsa_recoverable_signature();
-	secp256k1_ecdsa_recoverable_sig_ce->create_object = secp256k1_ecdsa_recoverable_sig_deny_new;
-
-	memcpy(&secp256k1_ecdsa_recoverable_sig_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	secp256k1_ecdsa_recoverable_sig_handlers.offset = offsetof(secp256k1_ecdsa_recoverable_sig_obj, std);
-	secp256k1_ecdsa_recoverable_sig_handlers.free_obj = secp256k1_ecdsa_recoverable_sig_free_object;
-	secp256k1_ecdsa_recoverable_sig_handlers.clone_obj = NULL;
+	SECP256K1_REGISTER_CLASS(secp256k1_ecdsa_recoverable_sig, register_class_secp256k1_ecdsa_recoverable_signature);
 #endif
 
 	register_secp256k1_symbols(module_number);

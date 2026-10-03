@@ -14,6 +14,13 @@
 #include <secp256k1_recovery.h>
 #endif
 
+#define SECP256K1_OPAQUE_TYPE(name, ctype, field)						\
+	typedef struct { ctype field; zend_object std; } name##_obj;		\
+	zend_object *name##_create_object(zend_class_entry *ce);			\
+	static inline name##_obj *name##_from_obj(zend_object *obj) {		\
+		return (name##_obj *)((char *)obj - offsetof(name##_obj, std));	\
+	}
+
 extern secp256k1_context *secp256k1_ctx;
 
 extern zend_class_entry *secp256k1_pubkey_ce;
@@ -26,72 +33,14 @@ extern zend_class_entry *secp256k1_keypair_ce;
 extern zend_class_entry *secp256k1_ecdsa_recoverable_sig_ce;
 #endif
 
-zend_object *secp256k1_pubkey_create_object(zend_class_entry *ce);
-zend_object *secp256k1_ecdsa_sig_create_object(zend_class_entry *ce);
+SECP256K1_OPAQUE_TYPE(secp256k1_pubkey, secp256k1_pubkey, pubkey)
+SECP256K1_OPAQUE_TYPE(secp256k1_ecdsa_sig, secp256k1_ecdsa_signature, sig)
 #ifdef HAVE_SECP256K1_EXTRAKEYS
-zend_object *secp256k1_xonly_pubkey_create_object(zend_class_entry *ce);
-zend_object *secp256k1_keypair_create_object(zend_class_entry *ce);
+SECP256K1_OPAQUE_TYPE(secp256k1_xonly_pubkey, secp256k1_xonly_pubkey, xonly_pubkey)
+SECP256K1_OPAQUE_TYPE(secp256k1_keypair, secp256k1_keypair, keypair)
 #endif
 #ifdef HAVE_SECP256K1_RECOVERY
-zend_object *secp256k1_ecdsa_recoverable_sig_create_object(zend_class_entry *ce);
-#endif
-
-typedef struct {
-	secp256k1_pubkey pubkey;
-	zend_object std;
-} secp256k1_pubkey_obj;
-
-typedef struct {
-	secp256k1_ecdsa_signature sig;
-	zend_object std;
-} secp256k1_ecdsa_sig_obj;
-
-#ifdef HAVE_SECP256K1_EXTRAKEYS
-typedef struct {
-	secp256k1_xonly_pubkey xonly_pubkey;
-	zend_object std;
-} secp256k1_xonly_pubkey_obj;
-
-typedef struct {
-	secp256k1_keypair keypair;
-	zend_object std;
-} secp256k1_keypair_obj;
-#endif
-
-#ifdef HAVE_SECP256K1_RECOVERY
-typedef struct {
-	secp256k1_ecdsa_recoverable_signature sig;
-	zend_object std;
-} secp256k1_ecdsa_recoverable_sig_obj;
-#endif
-
-static inline secp256k1_pubkey_obj *secp256k1_pubkey_from_obj(zend_object *obj)
-{
-	return (secp256k1_pubkey_obj *)((char *)obj - offsetof(secp256k1_pubkey_obj, std));
-}
-
-static inline secp256k1_ecdsa_sig_obj *secp256k1_ecdsa_sig_from_obj(zend_object *obj)
-{
-	return (secp256k1_ecdsa_sig_obj *)((char *)obj - offsetof(secp256k1_ecdsa_sig_obj, std));
-}
-
-#ifdef HAVE_SECP256K1_EXTRAKEYS
-static inline secp256k1_xonly_pubkey_obj *secp256k1_xonly_pubkey_from_obj(zend_object *obj)
-{
-	return (secp256k1_xonly_pubkey_obj *)((char *)obj - offsetof(secp256k1_xonly_pubkey_obj, std));
-}
-
-static inline secp256k1_keypair_obj *secp256k1_keypair_from_obj(zend_object *obj)
-{
-	return (secp256k1_keypair_obj *)((char *)obj - offsetof(secp256k1_keypair_obj, std));
-}
-#endif
-
-#ifdef HAVE_SECP256K1_RECOVERY
-static inline secp256k1_ecdsa_recoverable_sig_obj *secp256k1_ecdsa_recoverable_sig_from_obj(zend_object *obj)
-{
-	return (secp256k1_ecdsa_recoverable_sig_obj *)((char *)obj - offsetof(secp256k1_ecdsa_recoverable_sig_obj, std));
-}
+SECP256K1_OPAQUE_TYPE(secp256k1_ecdsa_recoverable_sig, secp256k1_ecdsa_recoverable_signature, sig)
 #endif
 
 #endif /* SECP256K1_CORE_H */
