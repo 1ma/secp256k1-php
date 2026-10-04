@@ -77,24 +77,34 @@ SECP256K1_DENY_NEW(secp256k1_ecdsa_recoverable_sig,
 	"secp256k1_ecdsa_recoverable_signature_parse_compact() or secp256k1_ecdsa_sign_recoverable()")
 #endif
 
-PHP_MINIT_FUNCTION(secp256k1)
+PHP_GINIT_FUNCTION(secp256k1)
 {
 	unsigned char seed[32];
-	zend_result result = FAILURE;
 
-	SECP256K1_G(ctx) = secp256k1_context_create(SECP256K1_CONTEXT_NONE);
-	if (SECP256K1_G(ctx) == NULL) {
-		goto release;
+#if defined(COMPILE_DL_SECP256K1) && defined(ZTS)
+	ZEND_TSRMLS_CACHE_UPDATE();
+#endif
+
+	secp256k1_globals->ctx = secp256k1_context_create(SECP256K1_CONTEXT_NONE);
+
+	if (php_random_bytes_throw(seed, sizeof(seed)) == SUCCESS
+			&& !secp256k1_context_randomize(secp256k1_globals->ctx, seed)) {
+		php_error_docref(NULL, E_WARNING, "secp256k1: failed to randomize context");
 	}
 
-	if (php_random_bytes_throw(seed, sizeof(seed)) == FAILURE) {
-		goto release;
-	}
+	explicit_bzero(seed, sizeof(seed));
+}
 
-	if (!secp256k1_context_randomize(SECP256K1_G(ctx), seed)) {
-		goto release;
+PHP_GSHUTDOWN_FUNCTION(secp256k1)
+{
+	if (secp256k1_globals->ctx != NULL) {
+		secp256k1_context_destroy(secp256k1_globals->ctx);
+		secp256k1_globals->ctx = NULL;
 	}
+}
 
+PHP_MINIT_FUNCTION(secp256k1)
+{
 	SECP256K1_REGISTER_CLASS(secp256k1_pubkey, register_class_secp256k1_pubkey);
 	SECP256K1_REGISTER_CLASS(secp256k1_ecdsa_sig, register_class_secp256k1_ecdsa_signature);
 
@@ -108,35 +118,6 @@ PHP_MINIT_FUNCTION(secp256k1)
 #endif
 
 	register_secp256k1_symbols(module_number);
-
-	result = SUCCESS;
-
-release:
-	explicit_bzero(seed, sizeof(seed));
-
-	if (result == FAILURE && SECP256K1_G(ctx) != NULL) {
-		secp256k1_context_destroy(SECP256K1_G(ctx));
-		SECP256K1_G(ctx) = NULL;
-	}
-
-	return result;
-}
-
-PHP_MSHUTDOWN_FUNCTION(secp256k1)
-{
-	if (SECP256K1_G(ctx) != NULL) {
-		secp256k1_context_destroy(SECP256K1_G(ctx));
-		SECP256K1_G(ctx) = NULL;
-	}
-
-	return SUCCESS;
-}
-
-PHP_RINIT_FUNCTION(secp256k1)
-{
-#if defined(ZTS) && defined(COMPILE_DL_SECP256K1)
-	ZEND_TSRMLS_CACHE_UPDATE();
-#endif
 
 	return SUCCESS;
 }
@@ -181,12 +162,16 @@ zend_module_entry secp256k1_module_entry = {
 	"secp256k1",					/* Extension name */
 	ext_functions,					/* zend_function_entry */
 	PHP_MINIT(secp256k1),			/* PHP_MINIT - Module initialization */
-	PHP_MSHUTDOWN(secp256k1),		/* PHP_MSHUTDOWN - Module shutdown */
-	PHP_RINIT(secp256k1),			/* PHP_RINIT - Request initialization */
+	NULL,							/* PHP_MSHUTDOWN - Module shutdown */
+	NULL,							/* PHP_RINIT - Request initialization */
 	NULL,							/* PHP_RSHUTDOWN - Request shutdown */
 	PHP_MINFO(secp256k1),			/* PHP_MINFO - Module info */
 	PHP_SECP256K1_VERSION,			/* Version */
-	STANDARD_MODULE_PROPERTIES
+	PHP_MODULE_GLOBALS(secp256k1),	/* globals size */
+	PHP_GINIT(secp256k1),			/* PHP_GINIT - Globals initialization */
+	PHP_GSHUTDOWN(secp256k1),		/* PHP_GSHUTDOWN - Globals shutdown */
+	NULL,							/* PHP_PRSHUTDOWN - Not used */
+	STANDARD_MODULE_PROPERTIES_EX
 };
 
 #ifdef COMPILE_DL_SECP256K1
