@@ -23,8 +23,16 @@
             "cmake --build $(pwd)/build/secp256k1 -j$(nproc)",
             "cmake --install $(pwd)/build/secp256k1"
         ],
-        "ext:build": ["phpize", "PKG_CONFIG_PATH=$(pwd)/build/secp256k1/lib/pkgconfig ./configure", "make"],
-        "ext:build-cov": ["phpize", "PKG_CONFIG_PATH=$(pwd)/build/secp256k1/lib/pkgconfig CFLAGS=\"--coverage -O0 -g\" LDFLAGS=\"--coverage\" ./configure", "make"],
+        "ext:build": [
+            "phpize",
+            "PKG_CONFIG_PATH=$(pwd)/build/secp256k1/lib/pkgconfig ./configure",
+            "make"
+        ],
+        "ext:build-cov": [
+            "phpize",
+            "PKG_CONFIG_PATH=$(pwd)/build/secp256k1/lib/pkgconfig CFLAGS=\"--coverage -O0 -g\" LDFLAGS=\"--coverage\" ./configure",
+            "make"
+        ],
         "ext:test": "make test TESTS=\"-q --show-diff\"",
         "ext:test-valgrind": "make test TESTS=\"-q -m --show-diff --show-mem\" VALGRIND_OPTS=\"--gen-suppressions=all --suppressions=valgrind-false-positives.supp\"",
         "ext:cov-report": [

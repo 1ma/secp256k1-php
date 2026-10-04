@@ -26,7 +26,13 @@
 		return (name##_obj *)((char *)obj - offsetof(name##_obj, std));	\
 	}
 
-extern secp256k1_context *secp256k1_ctx;
+ZEND_BEGIN_MODULE_GLOBALS(secp256k1)
+	secp256k1_context *ctx;
+ZEND_END_MODULE_GLOBALS(secp256k1)
+
+ZEND_EXTERN_MODULE_GLOBALS(secp256k1)
+
+#define SECP256K1_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(secp256k1, v)
 
 extern zend_class_entry *secp256k1_pubkey_ce;
 extern zend_class_entry *secp256k1_ecdsa_sig_ce;

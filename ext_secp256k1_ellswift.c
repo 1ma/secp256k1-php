@@ -19,7 +19,7 @@ PHP_FUNCTION(secp256k1_ellswift_encode)
 
 	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 
-	secp256k1_ellswift_encode(secp256k1_ctx, ell64, &intern->pubkey, (const unsigned char *)rnd);
+	secp256k1_ellswift_encode(SECP256K1_G(ctx), ell64, &intern->pubkey, (const unsigned char *)rnd);
 
 	RETVAL_STRINGL((char *)ell64, 64);
 	explicit_bzero(ell64, sizeof(ell64));
@@ -42,7 +42,7 @@ PHP_FUNCTION(secp256k1_ellswift_decode)
 	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
 	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(obj);
 
-	secp256k1_ellswift_decode(secp256k1_ctx, &intern->pubkey, (const unsigned char *)ell);
+	secp256k1_ellswift_decode(SECP256K1_G(ctx), &intern->pubkey, (const unsigned char *)ell);
 
 	RETURN_OBJ(obj);
 }
@@ -69,7 +69,7 @@ PHP_FUNCTION(secp256k1_ellswift_create)
 		RETURN_THROWS();
 	}
 
-	if (!secp256k1_ellswift_create(secp256k1_ctx, ell64, (const unsigned char *)seckey, (const unsigned char *)aux)) {
+	if (!secp256k1_ellswift_create(SECP256K1_G(ctx), ell64, (const unsigned char *)seckey, (const unsigned char *)aux)) {
 		explicit_bzero(ell64, sizeof(ell64));
 		RETURN_FALSE;
 	}
@@ -134,7 +134,7 @@ PHP_FUNCTION(secp256k1_ellswift_xdh)
 			RETURN_THROWS();
 	}
 
-	if (!secp256k1_ellswift_xdh(secp256k1_ctx, output,
+	if (!secp256k1_ellswift_xdh(SECP256K1_G(ctx), output,
 			(const unsigned char *)ell_a, (const unsigned char *)ell_b,
 			(const unsigned char *)seckey, party, hashfp, data)) {
 		explicit_bzero(output, sizeof(output));

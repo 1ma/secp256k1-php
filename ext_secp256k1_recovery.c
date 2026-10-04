@@ -24,7 +24,7 @@ PHP_FUNCTION(secp256k1_ecdsa_recoverable_signature_parse_compact)
 	zend_object *obj = secp256k1_ecdsa_recoverable_sig_create_object(secp256k1_ecdsa_recoverable_sig_ce);
 	secp256k1_ecdsa_recoverable_sig_obj *intern = secp256k1_ecdsa_recoverable_sig_from_obj(obj);
 
-	if (!secp256k1_ecdsa_recoverable_signature_parse_compact(secp256k1_ctx, &intern->sig, (const unsigned char *)input, (int)recid)) {
+	if (!secp256k1_ecdsa_recoverable_signature_parse_compact(SECP256K1_G(ctx), &intern->sig, (const unsigned char *)input, (int)recid)) {
 		zend_object_release(obj);
 		RETURN_FALSE;
 	}
@@ -45,7 +45,7 @@ PHP_FUNCTION(secp256k1_ecdsa_recoverable_signature_serialize_compact)
 
 	secp256k1_ecdsa_recoverable_sig_obj *intern = secp256k1_ecdsa_recoverable_sig_from_obj(Z_OBJ_P(sig_zval));
 
-	int ok = secp256k1_ecdsa_recoverable_signature_serialize_compact(secp256k1_ctx, output, &recid, &intern->sig);
+	int ok = secp256k1_ecdsa_recoverable_signature_serialize_compact(SECP256K1_G(ctx), output, &recid, &intern->sig);
 	(void)ok;
 
 	ZEND_TRY_ASSIGN_REF_LONG(recid_zval, recid);
@@ -66,7 +66,7 @@ PHP_FUNCTION(secp256k1_ecdsa_recoverable_signature_convert)
 	zend_object *obj = secp256k1_ecdsa_sig_create_object(secp256k1_ecdsa_sig_ce);
 	secp256k1_ecdsa_sig_obj *result = secp256k1_ecdsa_sig_from_obj(obj);
 
-	int ok = secp256k1_ecdsa_recoverable_signature_convert(secp256k1_ctx, &result->sig, &intern->sig);
+	int ok = secp256k1_ecdsa_recoverable_signature_convert(SECP256K1_G(ctx), &result->sig, &intern->sig);
 	(void)ok;
 
 	RETURN_OBJ(obj);
@@ -95,7 +95,7 @@ PHP_FUNCTION(secp256k1_ecdsa_sign_recoverable)
 	zend_object *obj = secp256k1_ecdsa_recoverable_sig_create_object(secp256k1_ecdsa_recoverable_sig_ce);
 	secp256k1_ecdsa_recoverable_sig_obj *intern = secp256k1_ecdsa_recoverable_sig_from_obj(obj);
 
-	if (!secp256k1_ecdsa_sign_recoverable(secp256k1_ctx, &intern->sig, (const unsigned char *)msg, (const unsigned char *)seckey, NULL, NULL)) {
+	if (!secp256k1_ecdsa_sign_recoverable(SECP256K1_G(ctx), &intern->sig, (const unsigned char *)msg, (const unsigned char *)seckey, NULL, NULL)) {
 		zend_object_release(obj);
 		RETURN_FALSE;
 	}
@@ -124,7 +124,7 @@ PHP_FUNCTION(secp256k1_ecdsa_recover)
 	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
 	secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(obj);
 
-	if (!secp256k1_ecdsa_recover(secp256k1_ctx, &pubkey_intern->pubkey, &sig_intern->sig, (const unsigned char *)msg)) {
+	if (!secp256k1_ecdsa_recover(SECP256K1_G(ctx), &pubkey_intern->pubkey, &sig_intern->sig, (const unsigned char *)msg)) {
 		zend_object_release(obj);
 		RETURN_FALSE;
 	}

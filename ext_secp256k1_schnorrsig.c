@@ -28,7 +28,7 @@ PHP_FUNCTION(secp256k1_schnorrsig_sign32)
 	secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
 
 	RETVAL_FALSE;
-	if (secp256k1_schnorrsig_sign32(secp256k1_ctx, sig, (const unsigned char *)msg, &keypair_intern->keypair, (const unsigned char *)aux)) {
+	if (secp256k1_schnorrsig_sign32(SECP256K1_G(ctx), sig, (const unsigned char *)msg, &keypair_intern->keypair, (const unsigned char *)aux)) {
 		RETVAL_STRINGL((char *)sig, 64);
 	}
 
@@ -50,7 +50,7 @@ PHP_FUNCTION(secp256k1_schnorrsig_sign_custom)
 	secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
 
 	RETVAL_FALSE;
-	if (secp256k1_schnorrsig_sign_custom(secp256k1_ctx, sig, (const unsigned char *)msg, msg_len, &keypair_intern->keypair, NULL)) {
+	if (secp256k1_schnorrsig_sign_custom(SECP256K1_G(ctx), sig, (const unsigned char *)msg, msg_len, &keypair_intern->keypair, NULL)) {
 		RETVAL_STRINGL((char *)sig, 64);
 	}
 
@@ -76,5 +76,5 @@ PHP_FUNCTION(secp256k1_schnorrsig_verify)
 
 	secp256k1_xonly_pubkey_obj *pubkey_intern = secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 
-	RETURN_BOOL(secp256k1_schnorrsig_verify(secp256k1_ctx, (const unsigned char *)sig, (const unsigned char *)msg, msg_len, &pubkey_intern->xonly_pubkey));
+	RETURN_BOOL(secp256k1_schnorrsig_verify(SECP256K1_G(ctx), (const unsigned char *)sig, (const unsigned char *)msg, msg_len, &pubkey_intern->xonly_pubkey));
 }

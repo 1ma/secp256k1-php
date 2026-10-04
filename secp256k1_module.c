@@ -12,7 +12,7 @@
 
 #include "secp256k1_arginfo.h"
 
-secp256k1_context *secp256k1_ctx = NULL;
+ZEND_DECLARE_MODULE_GLOBALS(secp256k1)
 
 #define SECP256K1_OPAQUE_HANDLERS(name, ctype, field)						\
 	static zend_object_handlers name##_handlers;							\
@@ -82,8 +82,8 @@ PHP_MINIT_FUNCTION(secp256k1)
 	unsigned char seed[32];
 	zend_result result = FAILURE;
 
-	secp256k1_ctx = secp256k1_context_create(SECP256K1_CONTEXT_NONE);
-	if (secp256k1_ctx == NULL) {
+	SECP256K1_G(ctx) = secp256k1_context_create(SECP256K1_CONTEXT_NONE);
+	if (SECP256K1_G(ctx) == NULL) {
 		goto release;
 	}
 
@@ -91,7 +91,7 @@ PHP_MINIT_FUNCTION(secp256k1)
 		goto release;
 	}
 
-	if (!secp256k1_context_randomize(secp256k1_ctx, seed)) {
+	if (!secp256k1_context_randomize(SECP256K1_G(ctx), seed)) {
 		goto release;
 	}
 
@@ -114,9 +114,9 @@ PHP_MINIT_FUNCTION(secp256k1)
 release:
 	explicit_bzero(seed, sizeof(seed));
 
-	if (result == FAILURE && secp256k1_ctx != NULL) {
-		secp256k1_context_destroy(secp256k1_ctx);
-		secp256k1_ctx = NULL;
+	if (result == FAILURE && SECP256K1_G(ctx) != NULL) {
+		secp256k1_context_destroy(SECP256K1_G(ctx));
+		SECP256K1_G(ctx) = NULL;
 	}
 
 	return result;
@@ -124,9 +124,9 @@ release:
 
 PHP_MSHUTDOWN_FUNCTION(secp256k1)
 {
-	if (secp256k1_ctx != NULL) {
-		secp256k1_context_destroy(secp256k1_ctx);
-		secp256k1_ctx = NULL;
+	if (SECP256K1_G(ctx) != NULL) {
+		secp256k1_context_destroy(SECP256K1_G(ctx));
+		SECP256K1_G(ctx) = NULL;
 	}
 
 	return SUCCESS;

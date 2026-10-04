@@ -14,7 +14,7 @@ PHP_FUNCTION(secp256k1_ec_seckey_verify)
 		RETURN_THROWS();
 	}
 
-	RETURN_BOOL(secp256k1_ec_seckey_verify(secp256k1_ctx, (const unsigned char *)seckey));
+	RETURN_BOOL(secp256k1_ec_seckey_verify(SECP256K1_G(ctx), (const unsigned char *)seckey));
 }
 
 PHP_FUNCTION(secp256k1_ec_pubkey_create)
@@ -34,7 +34,7 @@ PHP_FUNCTION(secp256k1_ec_pubkey_create)
 	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
 	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(obj);
 
-	if (!secp256k1_ec_pubkey_create(secp256k1_ctx, &intern->pubkey, (const unsigned char *)seckey)) {
+	if (!secp256k1_ec_pubkey_create(SECP256K1_G(ctx), &intern->pubkey, (const unsigned char *)seckey)) {
 		zend_object_release(obj);
 		RETURN_FALSE;
 	}
@@ -54,7 +54,7 @@ PHP_FUNCTION(secp256k1_ec_pubkey_parse)
 	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
 	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(obj);
 
-	if (!secp256k1_ec_pubkey_parse(secp256k1_ctx, &intern->pubkey, (const unsigned char *)input, input_len)) {
+	if (!secp256k1_ec_pubkey_parse(SECP256K1_G(ctx), &intern->pubkey, (const unsigned char *)input, input_len)) {
 		zend_object_release(obj);
 		RETURN_FALSE;
 	}
@@ -82,7 +82,7 @@ PHP_FUNCTION(secp256k1_ec_pubkey_serialize)
 
 	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 
-	secp256k1_ec_pubkey_serialize(secp256k1_ctx, output, &outputlen, &intern->pubkey, (unsigned int)flags);
+	secp256k1_ec_pubkey_serialize(SECP256K1_G(ctx), output, &outputlen, &intern->pubkey, (unsigned int)flags);
 
 	RETVAL_STRINGL((char *)output, outputlen);
 	explicit_bzero(output, sizeof(output));
@@ -105,7 +105,7 @@ PHP_FUNCTION(secp256k1_ecdsa_signature_parse_compact)
 	zend_object *obj = secp256k1_ecdsa_sig_create_object(secp256k1_ecdsa_sig_ce);
 	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(obj);
 
-	if (!secp256k1_ecdsa_signature_parse_compact(secp256k1_ctx, &intern->sig, (const unsigned char *)sig64)) {
+	if (!secp256k1_ecdsa_signature_parse_compact(SECP256K1_G(ctx), &intern->sig, (const unsigned char *)sig64)) {
 		zend_object_release(obj);
 		RETURN_FALSE;
 	}
@@ -125,7 +125,7 @@ PHP_FUNCTION(secp256k1_ecdsa_signature_parse_der)
 	zend_object *obj = secp256k1_ecdsa_sig_create_object(secp256k1_ecdsa_sig_ce);
 	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(obj);
 
-	if (!secp256k1_ecdsa_signature_parse_der(secp256k1_ctx, &intern->sig, (const unsigned char *)der, der_len)) {
+	if (!secp256k1_ecdsa_signature_parse_der(SECP256K1_G(ctx), &intern->sig, (const unsigned char *)der, der_len)) {
 		zend_object_release(obj);
 		RETURN_FALSE;
 	}
@@ -144,7 +144,7 @@ PHP_FUNCTION(secp256k1_ecdsa_signature_serialize_compact)
 
 	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
 
-	secp256k1_ecdsa_signature_serialize_compact(secp256k1_ctx, output, &intern->sig);
+	secp256k1_ecdsa_signature_serialize_compact(SECP256K1_G(ctx), output, &intern->sig);
 
 	RETVAL_STRINGL((char *)output, 64);
 	explicit_bzero(output, sizeof(output));
@@ -163,7 +163,7 @@ PHP_FUNCTION(secp256k1_ecdsa_signature_serialize_der)
 
 	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
 
-	secp256k1_ecdsa_signature_serialize_der(secp256k1_ctx, output, &outputlen, &intern->sig);
+	secp256k1_ecdsa_signature_serialize_der(SECP256K1_G(ctx), output, &outputlen, &intern->sig);
 
 	RETVAL_STRINGL((char *)output, outputlen);
 	explicit_bzero(output, sizeof(output));
@@ -179,7 +179,7 @@ PHP_FUNCTION(secp256k1_ecdsa_signature_normalize)
 
 	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
 
-	RETURN_BOOL(secp256k1_ecdsa_signature_normalize(secp256k1_ctx, &intern->sig, &intern->sig));
+	RETURN_BOOL(secp256k1_ecdsa_signature_normalize(SECP256K1_G(ctx), &intern->sig, &intern->sig));
 }
 
 PHP_FUNCTION(secp256k1_ecdsa_sign)
@@ -205,7 +205,7 @@ PHP_FUNCTION(secp256k1_ecdsa_sign)
 	zend_object *obj = secp256k1_ecdsa_sig_create_object(secp256k1_ecdsa_sig_ce);
 	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(obj);
 
-	if (!secp256k1_ecdsa_sign(secp256k1_ctx, &intern->sig, (const unsigned char *)msghash32, (const unsigned char *)seckey32, NULL, NULL)) {
+	if (!secp256k1_ecdsa_sign(SECP256K1_G(ctx), &intern->sig, (const unsigned char *)msghash32, (const unsigned char *)seckey32, NULL, NULL)) {
 		zend_object_release(obj);
 		RETURN_FALSE;
 	}
@@ -233,7 +233,7 @@ PHP_FUNCTION(secp256k1_ecdsa_verify)
 	secp256k1_ecdsa_sig_obj *sig_intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
 	secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 
-	RETURN_BOOL(secp256k1_ecdsa_verify(secp256k1_ctx, &sig_intern->sig, (const unsigned char *)msghash32, &pubkey_intern->pubkey));
+	RETURN_BOOL(secp256k1_ecdsa_verify(SECP256K1_G(ctx), &sig_intern->sig, (const unsigned char *)msghash32, &pubkey_intern->pubkey));
 }
 
 PHP_FUNCTION(secp256k1_ec_seckey_negate)
@@ -253,7 +253,7 @@ PHP_FUNCTION(secp256k1_ec_seckey_negate)
 
 	memcpy(buf, seckey, 32);
 
-	if (!secp256k1_ec_seckey_negate(secp256k1_ctx, buf)) {
+	if (!secp256k1_ec_seckey_negate(SECP256K1_G(ctx), buf)) {
 		explicit_bzero(buf, sizeof(buf));
 		RETURN_FALSE;
 	}
@@ -285,7 +285,7 @@ PHP_FUNCTION(secp256k1_ec_seckey_tweak_add)
 
 	memcpy(buf, seckey, 32);
 
-	if (!secp256k1_ec_seckey_tweak_add(secp256k1_ctx, buf, (const unsigned char *)tweak)) {
+	if (!secp256k1_ec_seckey_tweak_add(SECP256K1_G(ctx), buf, (const unsigned char *)tweak)) {
 		explicit_bzero(buf, sizeof(buf));
 		RETURN_FALSE;
 	}
@@ -317,7 +317,7 @@ PHP_FUNCTION(secp256k1_ec_seckey_tweak_mul)
 
 	memcpy(buf, seckey, 32);
 
-	if (!secp256k1_ec_seckey_tweak_mul(secp256k1_ctx, buf, (const unsigned char *)tweak)) {
+	if (!secp256k1_ec_seckey_tweak_mul(SECP256K1_G(ctx), buf, (const unsigned char *)tweak)) {
 		explicit_bzero(buf, sizeof(buf));
 		RETURN_FALSE;
 	}
@@ -335,7 +335,7 @@ PHP_FUNCTION(secp256k1_ec_pubkey_negate)
 	ZEND_PARSE_PARAMETERS_END();
 
 	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
-	int ret = secp256k1_ec_pubkey_negate(secp256k1_ctx, &intern->pubkey);
+	int ret = secp256k1_ec_pubkey_negate(SECP256K1_G(ctx), &intern->pubkey);
 	(void)ret;
 }
 
@@ -358,7 +358,7 @@ PHP_FUNCTION(secp256k1_ec_pubkey_tweak_add)
 	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 	secp256k1_pubkey tmp = intern->pubkey;
 
-	if (!secp256k1_ec_pubkey_tweak_add(secp256k1_ctx, &tmp, (const unsigned char *)tweak)) {
+	if (!secp256k1_ec_pubkey_tweak_add(SECP256K1_G(ctx), &tmp, (const unsigned char *)tweak)) {
 		RETURN_FALSE;
 	}
 
@@ -385,7 +385,7 @@ PHP_FUNCTION(secp256k1_ec_pubkey_tweak_mul)
 	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 	secp256k1_pubkey tmp = intern->pubkey;
 
-	if (!secp256k1_ec_pubkey_tweak_mul(secp256k1_ctx, &tmp, (const unsigned char *)tweak)) {
+	if (!secp256k1_ec_pubkey_tweak_mul(SECP256K1_G(ctx), &tmp, (const unsigned char *)tweak)) {
 		RETURN_FALSE;
 	}
 
@@ -425,7 +425,7 @@ PHP_FUNCTION(secp256k1_ec_pubkey_combine)
 	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
 	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(obj);
 
-	if (!secp256k1_ec_pubkey_combine(secp256k1_ctx, &intern->pubkey, pubkey_ptrs, n)) {
+	if (!secp256k1_ec_pubkey_combine(SECP256K1_G(ctx), &intern->pubkey, pubkey_ptrs, n)) {
 		efree(pubkey_ptrs);
 		zend_object_release(obj);
 		RETURN_FALSE;
@@ -447,7 +447,7 @@ PHP_FUNCTION(secp256k1_ec_pubkey_cmp)
 	secp256k1_pubkey_obj *pk1 = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey1_zval));
 	secp256k1_pubkey_obj *pk2 = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey2_zval));
 
-	int result = secp256k1_ec_pubkey_cmp(secp256k1_ctx, &pk1->pubkey, &pk2->pubkey);
+	int result = secp256k1_ec_pubkey_cmp(SECP256K1_G(ctx), &pk1->pubkey, &pk2->pubkey);
 
 	RETURN_LONG(result > 0 ? 1 : (result < 0 ? -1 : 0));
 }
@@ -463,7 +463,7 @@ PHP_FUNCTION(secp256k1_tagged_sha256)
 		Z_PARAM_STRING(msg, msg_len)
 	ZEND_PARSE_PARAMETERS_END();
 
-	int ok = secp256k1_tagged_sha256(secp256k1_ctx, hash, (const unsigned char *)tag, tag_len, (const unsigned char *)msg, msg_len);
+	int ok = secp256k1_tagged_sha256(SECP256K1_G(ctx), hash, (const unsigned char *)tag, tag_len, (const unsigned char *)msg, msg_len);
 	(void)ok;
 
 	RETVAL_STRINGL((char *)hash, 32);
