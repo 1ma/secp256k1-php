@@ -8,7 +8,8 @@ PHP bindings for https://github.com/bitcoin-core/secp256k1
 This project seeks to reboot [Bit-Wasp's secp256k1-php](https://github.com/Bit-Wasp/secp256k1-php) to make this binding
 available again for PHP 8.2 and above, as well as exposing the newer secp256k1 APIs of more recent versions.
 
-It is not a fork of the old binding. It is a new implementation from scratch, starting from the extension skeleton of PHP 8.5.
+It is not a fork of the old binding, rather a new implementation built from scratch
+starting from the official extension skeleton given by PHP 8.5.
 
 ## Installation
 
@@ -29,7 +30,8 @@ $ php --ri secp256k1
 secp256k1
 
 secp256k1 support => enabled
-secp256k1 version => 0.8.0
+binding version => 0.1.2
+libsecp256k1 version => 0.8.0
 ecdh module => On
 recovery module => On
 extrakeys module => On
