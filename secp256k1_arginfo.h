@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: aea376468b2e5a8856313bc2659083233101db5e */
+ * Stub hash: 7639d12e3f6ccb4b3915d590af399eb73142537b */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_seckey_verify, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
@@ -189,6 +189,31 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_schnorrsig_verify, 0, 
 ZEND_END_ARG_INFO()
 #endif
 
+#if defined(HAVE_SECP256K1_ELLSWIFT)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ellswift_encode, 0, 2, IS_STRING, 0)
+	ZEND_ARG_OBJ_INFO(0, pubkey, secp256k1_pubkey, 0)
+	ZEND_ARG_TYPE_INFO(0, rnd32, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_secp256k1_ellswift_decode, 0, 1, secp256k1_pubkey, 0)
+	ZEND_ARG_TYPE_INFO(0, ell64, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_ellswift_create, 0, 1, MAY_BE_STRING|MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, auxrnd32, IS_STRING, 1, "null")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_ellswift_xdh, 0, 4, MAY_BE_STRING|MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, ell_a64, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, ell_b64, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, party, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, hashfn, IS_LONG, 0, "SECP256K1_ELLSWIFT_XDH_HASH_BIP324")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, prefix64, IS_STRING, 1, "null")
+ZEND_END_ARG_INFO()
+#endif
+
 ZEND_FUNCTION(secp256k1_ec_seckey_verify);
 ZEND_FUNCTION(secp256k1_ec_pubkey_create);
 ZEND_FUNCTION(secp256k1_ec_pubkey_parse);
@@ -236,6 +261,12 @@ ZEND_FUNCTION(secp256k1_ecdsa_recover);
 ZEND_FUNCTION(secp256k1_schnorrsig_sign32);
 ZEND_FUNCTION(secp256k1_schnorrsig_sign_custom);
 ZEND_FUNCTION(secp256k1_schnorrsig_verify);
+#endif
+#if defined(HAVE_SECP256K1_ELLSWIFT)
+ZEND_FUNCTION(secp256k1_ellswift_encode);
+ZEND_FUNCTION(secp256k1_ellswift_decode);
+ZEND_FUNCTION(secp256k1_ellswift_create);
+ZEND_FUNCTION(secp256k1_ellswift_xdh);
 #endif
 
 static const zend_function_entry ext_functions[] = {
@@ -287,6 +318,12 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_schnorrsig_sign_custom, arginfo_secp256k1_schnorrsig_sign_custom)
 	ZEND_FE(secp256k1_schnorrsig_verify, arginfo_secp256k1_schnorrsig_verify)
 #endif
+#if defined(HAVE_SECP256K1_ELLSWIFT)
+	ZEND_FE(secp256k1_ellswift_encode, arginfo_secp256k1_ellswift_encode)
+	ZEND_FE(secp256k1_ellswift_decode, arginfo_secp256k1_ellswift_decode)
+	ZEND_FE(secp256k1_ellswift_create, arginfo_secp256k1_ellswift_create)
+	ZEND_FE(secp256k1_ellswift_xdh, arginfo_secp256k1_ellswift_xdh)
+#endif
 	ZEND_FE_END
 };
 
@@ -294,6 +331,10 @@ static void register_secp256k1_symbols(int module_number)
 {
 	REGISTER_LONG_CONSTANT("SECP256K1_EC_COMPRESSED", SECP256K1_EC_COMPRESSED, CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("SECP256K1_EC_UNCOMPRESSED", SECP256K1_EC_UNCOMPRESSED, CONST_PERSISTENT);
+#if defined(HAVE_SECP256K1_ELLSWIFT)
+	REGISTER_LONG_CONSTANT("SECP256K1_ELLSWIFT_XDH_HASH_BIP324", SECP256K1_ELLSWIFT_XDH_HASH_BIP324, CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("SECP256K1_ELLSWIFT_XDH_HASH_PREFIX", SECP256K1_ELLSWIFT_XDH_HASH_PREFIX, CONST_PERSISTENT);
+#endif
 }
 
 static zend_class_entry *register_class_secp256k1_pubkey(void)

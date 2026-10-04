@@ -145,3 +145,25 @@ function secp256k1_schnorrsig_sign_custom(string $msg, secp256k1_keypair $keypai
 
 function secp256k1_schnorrsig_verify(string $sig64, string $msg, secp256k1_xonly_pubkey $pubkey): bool {}
 #endif
+
+#if defined(HAVE_SECP256K1_ELLSWIFT)
+/**
+ * @var int
+ * @cvalue SECP256K1_ELLSWIFT_XDH_HASH_BIP324
+ */
+const SECP256K1_ELLSWIFT_XDH_HASH_BIP324 = UNKNOWN;
+
+/**
+ * @var int
+ * @cvalue SECP256K1_ELLSWIFT_XDH_HASH_PREFIX
+ */
+const SECP256K1_ELLSWIFT_XDH_HASH_PREFIX = UNKNOWN;
+
+function secp256k1_ellswift_encode(secp256k1_pubkey $pubkey, string $rnd32): string {}
+
+function secp256k1_ellswift_decode(string $ell64): secp256k1_pubkey {}
+
+function secp256k1_ellswift_create(string $seckey32, ?string $auxrnd32 = null): string|false {}
+
+function secp256k1_ellswift_xdh(string $ell_a64, string $ell_b64, string $seckey32, bool $party, int $hashfn = SECP256K1_ELLSWIFT_XDH_HASH_BIP324, ?string $prefix64 = null): string|false {}
+#endif

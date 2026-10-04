@@ -13,6 +13,11 @@
 #ifdef HAVE_SECP256K1_RECOVERY
 #include <secp256k1_recovery.h>
 #endif
+#ifdef HAVE_SECP256K1_ELLSWIFT
+#include <secp256k1_ellswift.h>
+#define SECP256K1_ELLSWIFT_XDH_HASH_BIP324 0
+#define SECP256K1_ELLSWIFT_XDH_HASH_PREFIX 1
+#endif
 
 #define SECP256K1_OPAQUE_TYPE(name, ctype, field)						\
 	typedef struct { ctype field; zend_object std; } name##_obj;		\

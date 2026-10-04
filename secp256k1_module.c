@@ -166,7 +166,11 @@ PHP_MINFO_FUNCTION(secp256k1)
 #else
 	php_info_print_table_row(2, "schnorrsig module", "Off");
 #endif
+#ifdef HAVE_SECP256K1_ELLSWIFT
+	php_info_print_table_row(2, "ellswift module", "On");
+#else
 	php_info_print_table_row(2, "ellswift module", "Off");
+#endif
 	php_info_print_table_row(2, "musig module", "Off");
 	php_info_print_table_row(2, "silentpayments module", "Off");
 	php_info_print_table_end();

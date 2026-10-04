@@ -73,6 +73,13 @@ AS_VAR_IF([PHP_SECP256K1], [no],, [
     [],
     [$LIBSECP256K1_LIBS])
 
+  PHP_CHECK_LIBRARY([secp256k1], [secp256k1_ellswift_encode],
+    [AC_DEFINE([HAVE_SECP256K1_ELLSWIFT], [1],
+      [Define to 1 if libsecp256k1 has the ellswift module.])
+     PHP_SECP256K1_SOURCES="$PHP_SECP256K1_SOURCES ext_secp256k1_ellswift.c"],
+    [],
+    [$LIBSECP256K1_LIBS])
+
   dnl Add linked libraries flags for shared extension to the generated Makefile.
   PHP_SUBST([SECP256K1_SHARED_LIBADD])
 
