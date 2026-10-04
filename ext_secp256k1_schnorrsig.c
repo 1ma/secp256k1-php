@@ -27,12 +27,11 @@ PHP_FUNCTION(secp256k1_schnorrsig_sign32)
 
 	secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
 
-	if (!secp256k1_schnorrsig_sign32(secp256k1_ctx, sig, (const unsigned char *)msg, &keypair_intern->keypair, (const unsigned char *)aux)) {
-		explicit_bzero(sig, sizeof(sig));
-		RETURN_FALSE;
+	RETVAL_FALSE;
+	if (secp256k1_schnorrsig_sign32(secp256k1_ctx, sig, (const unsigned char *)msg, &keypair_intern->keypair, (const unsigned char *)aux)) {
+		RETVAL_STRINGL((char *)sig, 64);
 	}
 
-	RETVAL_STRINGL((char *)sig, 64);
 	explicit_bzero(sig, sizeof(sig));
 }
 
@@ -50,12 +49,11 @@ PHP_FUNCTION(secp256k1_schnorrsig_sign_custom)
 
 	secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
 
-	if (!secp256k1_schnorrsig_sign_custom(secp256k1_ctx, sig, (const unsigned char *)msg, msg_len, &keypair_intern->keypair, NULL)) {
-		explicit_bzero(sig, sizeof(sig));
-		RETURN_FALSE;
+	RETVAL_FALSE;
+	if (secp256k1_schnorrsig_sign_custom(secp256k1_ctx, sig, (const unsigned char *)msg, msg_len, &keypair_intern->keypair, NULL)) {
+		RETVAL_STRINGL((char *)sig, 64);
 	}
 
-	RETVAL_STRINGL((char *)sig, 64);
 	explicit_bzero(sig, sizeof(sig));
 }
 
