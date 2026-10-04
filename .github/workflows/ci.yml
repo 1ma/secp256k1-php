@@ -31,6 +31,8 @@ jobs:
           composer ext:secp256k1
           composer ext:build
           ldd modules/secp256k1.so
+      - name: Make sure that the extension loads and the job doesn't pass with all tests skipped
+        run: php -d extension=modules/secp256k1.so --ri secp256k1
       - run: |
           php -v
           sudo apt-get install valgrind
