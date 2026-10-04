@@ -469,3 +469,17 @@ PHP_FUNCTION(secp256k1_tagged_sha256)
 	RETVAL_STRINGL((char *)hash, 32);
 	explicit_bzero(hash, sizeof(hash));
 }
+
+PHP_FUNCTION(secp256k1_context_randomize)
+{
+	unsigned char seed[32];
+
+	ZEND_PARSE_PARAMETERS_NONE();
+
+	RETVAL_FALSE;
+	if (php_random_bytes_throw(seed, sizeof(seed)) == SUCCESS) {
+		RETVAL_BOOL(secp256k1_context_randomize(SECP256K1_G(ctx), seed));
+	}
+
+	explicit_bzero(seed, sizeof(seed));
+}

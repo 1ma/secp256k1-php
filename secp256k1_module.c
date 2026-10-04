@@ -2,11 +2,6 @@
 
 #include "php.h"
 #include "ext/standard/info.h"
-#if PHP_VERSION_ID >= 80400
-# include "ext/random/php_random_csprng.h"
-#else
-# include "ext/random/php_random.h"
-#endif
 #include "php_secp256k1.h"
 #include "secp256k1_module.h"
 

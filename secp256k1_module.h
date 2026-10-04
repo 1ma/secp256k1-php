@@ -6,6 +6,11 @@
 #endif
 
 #include "php.h"
+#if PHP_VERSION_ID >= 80400
+# include "ext/random/php_random_csprng.h"
+#else
+# include "ext/random/php_random.h"
+#endif
 #include <secp256k1.h>
 #ifdef HAVE_SECP256K1_EXTRAKEYS
 #include <secp256k1_extrakeys.h>

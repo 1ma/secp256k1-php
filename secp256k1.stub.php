@@ -74,6 +74,8 @@ function secp256k1_ec_pubkey_cmp(secp256k1_pubkey $pubkey1, secp256k1_pubkey $pu
 
 function secp256k1_tagged_sha256(string $tag, string $msg): string {}
 
+function secp256k1_context_randomize(): bool {}
+
 #if defined(HAVE_SECP256K1_ECDH)
 function secp256k1_ecdh(secp256k1_pubkey $pubkey, string $seckey32): string|false {}
 #endif
