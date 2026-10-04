@@ -84,7 +84,8 @@ PHP_FUNCTION(secp256k1_ec_pubkey_serialize)
 
 	secp256k1_ec_pubkey_serialize(secp256k1_ctx, output, &outputlen, &intern->pubkey, (unsigned int)flags);
 
-	RETURN_STRINGL((char *)output, outputlen);
+	RETVAL_STRINGL((char *)output, outputlen);
+	explicit_bzero(output, sizeof(output));
 }
 
 PHP_FUNCTION(secp256k1_ecdsa_signature_parse_compact)
@@ -145,7 +146,8 @@ PHP_FUNCTION(secp256k1_ecdsa_signature_serialize_compact)
 
 	secp256k1_ecdsa_signature_serialize_compact(secp256k1_ctx, output, &intern->sig);
 
-	RETURN_STRINGL((char *)output, 64);
+	RETVAL_STRINGL((char *)output, 64);
+	explicit_bzero(output, sizeof(output));
 }
 
 PHP_FUNCTION(secp256k1_ecdsa_signature_serialize_der)
@@ -163,7 +165,8 @@ PHP_FUNCTION(secp256k1_ecdsa_signature_serialize_der)
 
 	secp256k1_ecdsa_signature_serialize_der(secp256k1_ctx, output, &outputlen, &intern->sig);
 
-	RETURN_STRINGL((char *)output, outputlen);
+	RETVAL_STRINGL((char *)output, outputlen);
+	explicit_bzero(output, sizeof(output));
 }
 
 PHP_FUNCTION(secp256k1_ecdsa_signature_normalize)
@@ -463,5 +466,6 @@ PHP_FUNCTION(secp256k1_tagged_sha256)
 	int ok = secp256k1_tagged_sha256(secp256k1_ctx, hash, (const unsigned char *)tag, tag_len, (const unsigned char *)msg, msg_len);
 	(void)ok;
 
-	RETURN_STRINGL((char *)hash, 32);
+	RETVAL_STRINGL((char *)hash, 32);
+	explicit_bzero(hash, sizeof(hash));
 }

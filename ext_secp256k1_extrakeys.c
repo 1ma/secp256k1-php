@@ -38,7 +38,8 @@ PHP_FUNCTION(secp256k1_xonly_pubkey_serialize)
 
 	secp256k1_xonly_pubkey_serialize(secp256k1_ctx, output, &intern->xonly_pubkey);
 
-	RETURN_STRINGL((char *)output, 32);
+	RETVAL_STRINGL((char *)output, 32);
+	explicit_bzero(output, sizeof(output));
 }
 
 PHP_FUNCTION(secp256k1_xonly_pubkey_cmp)

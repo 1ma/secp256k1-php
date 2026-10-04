@@ -49,7 +49,8 @@ PHP_FUNCTION(secp256k1_ecdsa_recoverable_signature_serialize_compact)
 	(void)ok;
 
 	ZEND_TRY_ASSIGN_REF_LONG(recid_zval, recid);
-	RETURN_STRINGL((char *)output, 64);
+	RETVAL_STRINGL((char *)output, 64);
+	explicit_bzero(output, sizeof(output));
 }
 
 PHP_FUNCTION(secp256k1_ecdsa_recoverable_signature_convert)
