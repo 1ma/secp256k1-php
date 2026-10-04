@@ -6,7 +6,7 @@
 extern zend_module_entry secp256k1_module_entry;
 # define phpext_secp256k1_ptr &secp256k1_module_entry
 
-# define PHP_SECP256K1_VERSION "0.1.1"
+# define PHP_SECP256K1_VERSION "0.1.2"
 
 # if defined(ZTS) && defined(COMPILE_DL_SECP256K1)
 ZEND_TSRMLS_CACHE_EXTERN()
