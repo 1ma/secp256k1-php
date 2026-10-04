@@ -145,9 +145,36 @@ preprocessor conditionals — no need for separate `zend_register_functions` cal
 - encode, decode, create, xdh
 
 ### Phase 11 — Context re-randomization + ZTS module globals
-- `secp256k1_context_randomize`
-- Introduce `ZEND_BEGIN_MODULE_GLOBALS` / GINIT / GSHUTDOWN for per-thread contexts under ZTS
-- All prior phases use `const secp256k1_context *` and work on both NTS and ZTS without this
+
+All prior phases use a single global `secp256k1_context *` and work on both NTS and ZTS.
+This phase introduces per-thread contexts under ZTS and exposes `secp256k1_context_randomize`
+to userland. Implemented in three incremental steps:
+
+#### Step 1 — Introduce module globals (mechanical, no behavior change)
+- Define `ZEND_BEGIN_MODULE_GLOBALS(secp256k1)` / `ZEND_END_MODULE_GLOBALS` with
+  `secp256k1_context *ctx` as the only member
+- Define access macro `SECP256K1_G(v)` in `secp256k1_module.h`
+- Add `ZEND_DECLARE_MODULE_GLOBALS(secp256k1)` in `secp256k1_module.c`
+- Replace every `secp256k1_ctx` reference with `SECP256K1_G(ctx)` across all `.c` files
+- Remove the `extern secp256k1_context *secp256k1_ctx` declaration and the global variable
+- Context lifecycle stays in MINIT/MSHUTDOWN — behavior is identical under both NTS and ZTS
+
+#### Step 2 — Move context lifecycle to GINIT/GSHUTDOWN
+- Add `PHP_GINIT_FUNCTION(secp256k1)`: create and randomize the context (what MINIT does now)
+- Add `PHP_GSHUTDOWN_FUNCTION(secp256k1)`: destroy the context (what MSHUTDOWN does now)
+- MINIT keeps only class/constant registration
+- MSHUTDOWN becomes empty or is removed
+- Update `zend_module_entry` to declare GINIT/GSHUTDOWN and the globals size
+- Under NTS: behavior identical (GINIT runs once). Under ZTS: each thread gets its own
+  randomized context with zero contention
+
+#### Step 3 — Add `secp256k1_context_randomize()`
+- Stub: `function secp256k1_context_randomize(): bool {}`
+- Implementation: generate 32 bytes via `php_random_bytes_throw`, call
+  `secp256k1_context_randomize` on `SECP256K1_G(ctx)`, return success
+- Under NTS this is safe because execution is sequential
+- Under ZTS this is safe because each thread has its own context
+- Test: call it and verify it returns true
 
 ## Testing
 
