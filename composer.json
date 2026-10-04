@@ -1,5 +1,5 @@
 {
-    "name": "uma/secp256k1",
+    "name": "uma/secp256k1-php",
     "type": "php-ext",
     "license": "MIT",
     "description": "Native bindings for libsecp256k1",
