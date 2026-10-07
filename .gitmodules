@@ -4,6 +4,3 @@
 [submodule "bit-wasp"]
 	path = bit-wasp
 	url = https://github.com/Bit-Wasp/secp256k1-php
-[submodule "php-src"]
-	path = php-src
-	url = https://github.com/php/php-src
