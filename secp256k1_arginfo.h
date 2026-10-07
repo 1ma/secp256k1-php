@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 84f5b46acd0cc1c7545bda344926e0ad22634cdc */
+ * Stub hash: 3fa784a5d83a6d01af934d3fe83830fb285a74f9 */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_context_randomize, 0, 0, _IS_BOOL, 0)
 ZEND_END_ARG_INFO()
@@ -217,6 +217,16 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_ellswift_xdh, 0, 4, MA
 ZEND_END_ARG_INFO()
 #endif
 
+#if defined(HAVE_SECP256K1_SILENTPAYMENTS)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_silentpayments_sender_create_outputs, 0, 5, MAY_BE_ARRAY|MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, outpoint_smallest36, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, recipient_scan_pubkeys, IS_ARRAY, 0)
+	ZEND_ARG_TYPE_INFO(0, recipient_spend_pubkeys, IS_ARRAY, 0)
+	ZEND_ARG_TYPE_INFO(0, keypairs, IS_ARRAY, 0)
+	ZEND_ARG_TYPE_INFO(0, seckeys, IS_ARRAY, 0)
+ZEND_END_ARG_INFO()
+#endif
+
 ZEND_FUNCTION(secp256k1_context_randomize);
 ZEND_FUNCTION(secp256k1_tagged_sha256);
 ZEND_FUNCTION(secp256k1_ec_seckey_verify);
@@ -271,6 +281,9 @@ ZEND_FUNCTION(secp256k1_ellswift_create);
 ZEND_FUNCTION(secp256k1_ellswift_decode);
 ZEND_FUNCTION(secp256k1_ellswift_encode);
 ZEND_FUNCTION(secp256k1_ellswift_xdh);
+#endif
+#if defined(HAVE_SECP256K1_SILENTPAYMENTS)
+ZEND_FUNCTION(secp256k1_silentpayments_sender_create_outputs);
 #endif
 
 static const zend_function_entry ext_functions[] = {
@@ -328,6 +341,9 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_ellswift_decode, arginfo_secp256k1_ellswift_decode)
 	ZEND_FE(secp256k1_ellswift_encode, arginfo_secp256k1_ellswift_encode)
 	ZEND_FE(secp256k1_ellswift_xdh, arginfo_secp256k1_ellswift_xdh)
+#endif
+#if defined(HAVE_SECP256K1_SILENTPAYMENTS)
+	ZEND_FE(secp256k1_silentpayments_sender_create_outputs, arginfo_secp256k1_silentpayments_sender_create_outputs)
 #endif
 	ZEND_FE_END
 };

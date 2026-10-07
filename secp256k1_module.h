@@ -46,4 +46,8 @@ SECP256K1_OPAQUE_TYPE(secp256k1_ecdsa_recoverable_sig, secp256k1_ecdsa_recoverab
 # define SECP256K1_ELLSWIFT_XDH_HASH_PREFIX 1
 #endif
 
+#ifdef HAVE_SECP256K1_SILENTPAYMENTS
+# include <secp256k1_silentpayments.h>
+#endif
+
 #endif /* SECP256K1_CORE_H */

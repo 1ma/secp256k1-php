@@ -149,7 +149,11 @@ PHP_MINFO_FUNCTION(secp256k1)
 	php_info_print_table_row(2, "ellswift module", "Off");
 #endif
 	php_info_print_table_row(2, "musig module", "Not supported");
-	php_info_print_table_row(2, "silentpayments module", "Not supported");
+#ifdef HAVE_SECP256K1_SILENTPAYMENTS
+	php_info_print_table_row(2, "silentpayments module", "On (partial)");
+#else
+	php_info_print_table_row(2, "silentpayments module", "Off");
+#endif
 	php_info_print_table_end();
 }
 
