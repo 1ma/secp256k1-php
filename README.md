@@ -43,7 +43,23 @@ silentpayments module => On
 
 ## Manual Build
 
-TODO
+If your system packages a version of libsecp256k1 older than `v0.2.0` or you want to use one of
+the newer APIs you will need to build libsecp256k1 manually before you install the PHP extension.
+
+```shell
+$ sudo apt install build-essential cmake git
+$ git clone --branch v0.8.0 https://github.com/bitcoin-core/secp256k1
+$ cmake -S secp256k1 -B secp256k1/build -DSECP256K1_ENABLE_MODULE_RECOVERY=ON -DSECP256K1_BUILD_BENCHMARK=OFF -DSECP256K1_BUILD_CTIME_TESTS=OFF -DSECP256K1_BUILD_TESTS=OFF -DSECP256K1_BUILD_EXHAUSTIVE_TESTS=OFF
+$ cmake --build secp256k1/build
+$ sudo cmake --install secp256k1/build
+$ rm -rf secp256k1
+```
+
+This will install the development headers and dynamic library of libsecp256k1 at `/usr/local`, and also produce an
+`/usr/local/lib/pkgconfig/libsecp256k1.pc` pkg-config configuration file.
+
+Now when you install the PHP extension as usual with PIE, under the hood pkg-config should find the libsecp256k1
+installation at `/usr/local` and link the PHP extension against it instead of using the system's default package.
 
 ## Full API
 
