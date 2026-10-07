@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: cf82b3fc0490a775ac171c6b2e18def7bbd3543c */
+ * Stub hash: 1c36cf4710ab44edb6ef568489d9057db4c25b08 */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_context_randomize, 0, 0, _IS_BOOL, 0)
 ZEND_END_ARG_INFO()
@@ -244,6 +244,20 @@ ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_silentpayments_rec
 	ZEND_ARG_OBJ_INFO(0, spend_pubkey, secp256k1_pubkey, 0)
 	ZEND_ARG_OBJ_INFO(0, label, secp256k1_silentpayments_label, 0)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_silentpayments_recipient_prevouts_summary_create, 0, 3, secp256k1_silentpayments_prevouts_summary, MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, outpoint_smallest36, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, xonly_pubkeys, IS_ARRAY, 0)
+	ZEND_ARG_TYPE_INFO(0, pubkeys, IS_ARRAY, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_silentpayments_recipient_scan_outputs, 0, 4, MAY_BE_ARRAY|MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, scan_key32, IS_STRING, 0)
+	ZEND_ARG_OBJ_INFO(0, spend_pubkey, secp256k1_pubkey, 0)
+	ZEND_ARG_OBJ_INFO(0, prevouts_summary, secp256k1_silentpayments_prevouts_summary, 0)
+	ZEND_ARG_TYPE_INFO(0, tx_outputs, IS_ARRAY, 0)
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, labels, IS_ARRAY, 1, "null")
+ZEND_END_ARG_INFO()
 #endif
 
 ZEND_FUNCTION(secp256k1_context_randomize);
@@ -307,6 +321,8 @@ ZEND_FUNCTION(secp256k1_silentpayments_recipient_label_create);
 ZEND_FUNCTION(secp256k1_silentpayments_recipient_label_serialize);
 ZEND_FUNCTION(secp256k1_silentpayments_recipient_label_parse);
 ZEND_FUNCTION(secp256k1_silentpayments_recipient_create_labeled_spend_pubkey);
+ZEND_FUNCTION(secp256k1_silentpayments_recipient_prevouts_summary_create);
+ZEND_FUNCTION(secp256k1_silentpayments_recipient_scan_outputs);
 #endif
 
 static const zend_function_entry ext_functions[] = {
@@ -371,6 +387,8 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_silentpayments_recipient_label_serialize, arginfo_secp256k1_silentpayments_recipient_label_serialize)
 	ZEND_FE(secp256k1_silentpayments_recipient_label_parse, arginfo_secp256k1_silentpayments_recipient_label_parse)
 	ZEND_FE(secp256k1_silentpayments_recipient_create_labeled_spend_pubkey, arginfo_secp256k1_silentpayments_recipient_create_labeled_spend_pubkey)
+	ZEND_FE(secp256k1_silentpayments_recipient_prevouts_summary_create, arginfo_secp256k1_silentpayments_recipient_prevouts_summary_create)
+	ZEND_FE(secp256k1_silentpayments_recipient_scan_outputs, arginfo_secp256k1_silentpayments_recipient_scan_outputs)
 #endif
 	ZEND_FE_END
 };
@@ -472,6 +490,23 @@ static zend_class_entry *register_class_secp256k1_silentpayments_label(void)
 	zend_class_entry ce, *class_entry;
 
 	INIT_CLASS_ENTRY(ce, "secp256k1_silentpayments_label", NULL);
+#if (PHP_VERSION_ID >= 80400)
+	class_entry = zend_register_internal_class_with_flags(&ce, NULL, ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE);
+#else
+	class_entry = zend_register_internal_class_ex(&ce, NULL);
+	class_entry->ce_flags |= ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE;
+#endif
+
+	return class_entry;
+}
+#endif
+
+#if defined(HAVE_SECP256K1_SILENTPAYMENTS)
+static zend_class_entry *register_class_secp256k1_silentpayments_prevouts_summary(void)
+{
+	zend_class_entry ce, *class_entry;
+
+	INIT_CLASS_ENTRY(ce, "secp256k1_silentpayments_prevouts_summary", NULL);
 #if (PHP_VERSION_ID >= 80400)
 	class_entry = zend_register_internal_class_with_flags(&ce, NULL, ZEND_ACC_FINAL|ZEND_ACC_NO_DYNAMIC_PROPERTIES|ZEND_ACC_NOT_SERIALIZABLE);
 #else

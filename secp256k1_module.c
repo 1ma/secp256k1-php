@@ -74,9 +74,13 @@ SECP256K1_DENY_NEW(secp256k1_ecdsa_recoverable_sig,
 
 #ifdef HAVE_SECP256K1_SILENTPAYMENTS
 zend_class_entry *secp256k1_sp_label_ce;
+zend_class_entry *secp256k1_sp_prevouts_ce;
 SECP256K1_OPAQUE_HANDLERS(secp256k1_sp_label, secp256k1_silentpayments_label, label)
+SECP256K1_OPAQUE_HANDLERS(secp256k1_sp_prevouts, secp256k1_silentpayments_prevouts_summary, summary)
 SECP256K1_DENY_NEW(secp256k1_sp_label,
 	"secp256k1_silentpayments_recipient_label_create() or secp256k1_silentpayments_recipient_label_parse()")
+SECP256K1_DENY_NEW(secp256k1_sp_prevouts,
+	"secp256k1_silentpayments_recipient_prevouts_summary_create()")
 #endif
 
 PHP_GINIT_FUNCTION(secp256k1)
@@ -121,6 +125,7 @@ PHP_MINIT_FUNCTION(secp256k1)
 
 #ifdef HAVE_SECP256K1_SILENTPAYMENTS
 	SECP256K1_REGISTER_CLASS(secp256k1_sp_label, register_class_secp256k1_silentpayments_label);
+	SECP256K1_REGISTER_CLASS(secp256k1_sp_prevouts, register_class_secp256k1_silentpayments_prevouts_summary);
 #endif
 
 	register_secp256k1_symbols(module_number);
@@ -161,7 +166,7 @@ PHP_MINFO_FUNCTION(secp256k1)
 #endif
 	php_info_print_table_row(2, "musig module", "Not supported");
 #ifdef HAVE_SECP256K1_SILENTPAYMENTS
-	php_info_print_table_row(2, "silentpayments module", "On (partial)");
+	php_info_print_table_row(2, "silentpayments module", "On");
 #else
 	php_info_print_table_row(2, "silentpayments module", "Off");
 #endif

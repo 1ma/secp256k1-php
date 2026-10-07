@@ -188,4 +188,16 @@ function secp256k1_silentpayments_recipient_label_serialize(secp256k1_silentpaym
 function secp256k1_silentpayments_recipient_label_parse(string $in33): secp256k1_silentpayments_label|false {}
 
 function secp256k1_silentpayments_recipient_create_labeled_spend_pubkey(secp256k1_pubkey $spend_pubkey, secp256k1_silentpayments_label $label): secp256k1_pubkey|false {}
+
+/**
+ * @strict-properties
+ * @not-serializable
+ */
+final class secp256k1_silentpayments_prevouts_summary
+{
+}
+
+function secp256k1_silentpayments_recipient_prevouts_summary_create(string $outpoint_smallest36, array $xonly_pubkeys, array $pubkeys): secp256k1_silentpayments_prevouts_summary|false {}
+
+function secp256k1_silentpayments_recipient_scan_outputs(string $scan_key32, secp256k1_pubkey $spend_pubkey, secp256k1_silentpayments_prevouts_summary $prevouts_summary, array $tx_outputs, ?array $labels = null): array|false {}
 #endif

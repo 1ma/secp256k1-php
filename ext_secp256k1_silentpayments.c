@@ -248,3 +248,193 @@ PHP_FUNCTION(secp256k1_silentpayments_recipient_create_labeled_spend_pubkey)
 		zend_object_release(obj);
 	}
 }
+
+PHP_FUNCTION(secp256k1_silentpayments_recipient_prevouts_summary_create)
+{
+	char *outpoint;
+	size_t outpoint_len;
+	HashTable *xonly_ht, *pubkeys_ht;
+	zval *entry;
+	size_t n_xonly, n_pubkeys, i;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_STRING(outpoint, outpoint_len)
+		Z_PARAM_ARRAY_HT(xonly_ht)
+		Z_PARAM_ARRAY_HT(pubkeys_ht)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (outpoint_len != 36) {
+		zend_argument_value_error(1, "must be exactly 36 bytes");
+		RETURN_THROWS();
+	}
+
+	n_xonly = zend_hash_num_elements(xonly_ht);
+	n_pubkeys = zend_hash_num_elements(pubkeys_ht);
+	if (n_xonly == 0 && n_pubkeys == 0) {
+		zend_argument_value_error(2, "at least one of xonly_pubkeys or pubkeys must be non-empty");
+		RETURN_THROWS();
+	}
+
+	const secp256k1_xonly_pubkey **xonly_ptrs = NULL;
+	if (n_xonly > 0) {
+		xonly_ptrs = emalloc(sizeof(secp256k1_xonly_pubkey *) * n_xonly);
+		i = 0;
+		ZEND_HASH_FOREACH_VAL(xonly_ht, entry) {
+			if (Z_TYPE_P(entry) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(entry), secp256k1_xonly_pubkey_ce)) {
+				efree(xonly_ptrs);
+				zend_argument_type_error(2, "must contain only secp256k1_xonly_pubkey objects");
+				RETURN_THROWS();
+			}
+			xonly_ptrs[i++] = &secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(entry))->xonly_pubkey;
+		} ZEND_HASH_FOREACH_END();
+	}
+
+	const secp256k1_pubkey **pubkey_ptrs = NULL;
+	if (n_pubkeys > 0) {
+		pubkey_ptrs = emalloc(sizeof(secp256k1_pubkey *) * n_pubkeys);
+		i = 0;
+		ZEND_HASH_FOREACH_VAL(pubkeys_ht, entry) {
+			if (Z_TYPE_P(entry) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(entry), secp256k1_pubkey_ce)) {
+				if (xonly_ptrs) efree(xonly_ptrs);
+				efree(pubkey_ptrs);
+				zend_argument_type_error(3, "must contain only secp256k1_pubkey objects");
+				RETURN_THROWS();
+			}
+			pubkey_ptrs[i++] = &secp256k1_pubkey_from_obj(Z_OBJ_P(entry))->pubkey;
+		} ZEND_HASH_FOREACH_END();
+	}
+
+	zend_object *obj = secp256k1_sp_prevouts_create_object(secp256k1_sp_prevouts_ce);
+	secp256k1_sp_prevouts_obj *intern = secp256k1_sp_prevouts_from_obj(obj);
+
+	RETVAL_FALSE;
+	if (secp256k1_silentpayments_recipient_prevouts_summary_create(
+		SECP256K1_G(ctx), &intern->summary,
+		(const unsigned char *)outpoint,
+		xonly_ptrs, n_xonly,
+		pubkey_ptrs, n_pubkeys
+	)) {
+		RETVAL_OBJ(obj);
+	} else {
+		zend_object_release(obj);
+	}
+
+	if (xonly_ptrs) efree(xonly_ptrs);
+	if (pubkey_ptrs) efree(pubkey_ptrs);
+}
+
+static const unsigned char *sp_label_lookup(const unsigned char *label33, const void *label_context)
+{
+	HashTable *ht = (HashTable *)label_context;
+	zval *found = zend_hash_str_find(ht, (const char *)label33, 33);
+	if (found && Z_TYPE_P(found) == IS_STRING && Z_STRLEN_P(found) == 32) {
+		return (const unsigned char *)Z_STRVAL_P(found);
+	}
+	return NULL;
+}
+
+PHP_FUNCTION(secp256k1_silentpayments_recipient_scan_outputs)
+{
+	char *scan_key;
+	size_t scan_key_len;
+	zval *spend_zval, *prevouts_zval;
+	HashTable *tx_outputs_ht;
+	HashTable *labels_ht = NULL;
+	zval *entry;
+	size_t n_outputs, i;
+
+	ZEND_PARSE_PARAMETERS_START(4, 5)
+		Z_PARAM_STRING(scan_key, scan_key_len)
+		Z_PARAM_OBJECT_OF_CLASS(spend_zval, secp256k1_pubkey_ce)
+		Z_PARAM_OBJECT_OF_CLASS(prevouts_zval, secp256k1_sp_prevouts_ce)
+		Z_PARAM_ARRAY_HT(tx_outputs_ht)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_ARRAY_HT_OR_NULL(labels_ht)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (scan_key_len != 32) {
+		zend_argument_value_error(1, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	n_outputs = zend_hash_num_elements(tx_outputs_ht);
+	if (n_outputs == 0) {
+		zend_argument_value_error(4, "must not be empty");
+		RETURN_THROWS();
+	}
+
+	const secp256k1_xonly_pubkey **output_ptrs = emalloc(sizeof(secp256k1_xonly_pubkey *) * n_outputs);
+	i = 0;
+	ZEND_HASH_FOREACH_VAL(tx_outputs_ht, entry) {
+		if (Z_TYPE_P(entry) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(entry), secp256k1_xonly_pubkey_ce)) {
+			efree(output_ptrs);
+			zend_argument_type_error(4, "must contain only secp256k1_xonly_pubkey objects");
+			RETURN_THROWS();
+		}
+		output_ptrs[i++] = &secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(entry))->xonly_pubkey;
+	} ZEND_HASH_FOREACH_END();
+
+	secp256k1_pubkey_obj *spend_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(spend_zval));
+	secp256k1_sp_prevouts_obj *prevouts_intern = secp256k1_sp_prevouts_from_obj(Z_OBJ_P(prevouts_zval));
+
+	secp256k1_silentpayments_found_output *found = emalloc(sizeof(secp256k1_silentpayments_found_output) * n_outputs);
+	secp256k1_silentpayments_found_output **found_ptrs = emalloc(sizeof(secp256k1_silentpayments_found_output *) * n_outputs);
+	for (i = 0; i < n_outputs; i++) {
+		found_ptrs[i] = &found[i];
+	}
+
+	uint32_t n_found = 0;
+
+	RETVAL_FALSE;
+	if (secp256k1_silentpayments_recipient_scan_outputs(
+		SECP256K1_G(ctx),
+		found_ptrs, &n_found,
+		output_ptrs, n_outputs,
+		(const unsigned char *)scan_key,
+		&prevouts_intern->summary,
+		&spend_intern->pubkey,
+		labels_ht ? sp_label_lookup : NULL,
+		labels_ht
+	)) {
+		array_init_size(return_value, n_found);
+		for (i = 0; i < n_found; i++) {
+			zval item;
+			array_init_size(&item, 4);
+
+			zend_object *out_obj = secp256k1_xonly_pubkey_create_object(secp256k1_xonly_pubkey_ce);
+			secp256k1_xonly_pubkey_obj *out_intern = secp256k1_xonly_pubkey_from_obj(out_obj);
+			out_intern->xonly_pubkey = found[i].output;
+			zval out_zval;
+			ZVAL_OBJ(&out_zval, out_obj);
+			zend_hash_str_add_new(Z_ARRVAL(item), "output", sizeof("output") - 1, &out_zval);
+
+			zval tweak_zval;
+			ZVAL_STRINGL(&tweak_zval, (char *)found[i].tweak, 32);
+			zend_hash_str_add_new(Z_ARRVAL(item), "tweak", sizeof("tweak") - 1, &tweak_zval);
+
+			zval label_found_zval;
+			ZVAL_BOOL(&label_found_zval, found[i].found_with_label);
+			zend_hash_str_add_new(Z_ARRVAL(item), "found_with_label", sizeof("found_with_label") - 1, &label_found_zval);
+
+			if (found[i].found_with_label) {
+				zend_object *label_obj = secp256k1_sp_label_create_object(secp256k1_sp_label_ce);
+				secp256k1_sp_label_obj *label_intern = secp256k1_sp_label_from_obj(label_obj);
+				label_intern->label = found[i].label;
+				zval label_zval;
+				ZVAL_OBJ(&label_zval, label_obj);
+				zend_hash_str_add_new(Z_ARRVAL(item), "label", sizeof("label") - 1, &label_zval);
+			} else {
+				zval null_zval;
+				ZVAL_NULL(&null_zval);
+				zend_hash_str_add_new(Z_ARRVAL(item), "label", sizeof("label") - 1, &null_zval);
+			}
+
+			add_next_index_zval(return_value, &item);
+		}
+	}
+
+	explicit_bzero(found, sizeof(secp256k1_silentpayments_found_output) * n_outputs);
+	efree(found_ptrs);
+	efree(found);
+	efree(output_ptrs);
+}
