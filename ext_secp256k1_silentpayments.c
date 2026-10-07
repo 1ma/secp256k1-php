@@ -137,3 +137,114 @@ PHP_FUNCTION(secp256k1_silentpayments_sender_create_outputs)
 	if (keypair_ptrs) efree(keypair_ptrs);
 	if (seckey_ptrs) efree(seckey_ptrs);
 }
+
+PHP_FUNCTION(secp256k1_silentpayments_recipient_label_create)
+{
+	char *scan_key;
+	size_t scan_key_len;
+	zend_long m;
+	zval *tweak_zval;
+	unsigned char label_tweak[32];
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_STRING(scan_key, scan_key_len)
+		Z_PARAM_LONG(m)
+		Z_PARAM_ZVAL(tweak_zval)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (scan_key_len != 32) {
+		zend_argument_value_error(1, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	if (m < 0 || m > UINT32_MAX) {
+		zend_argument_value_error(2, "must be between 0 and 2^32-1");
+		RETURN_THROWS();
+	}
+
+	zend_object *obj = secp256k1_sp_label_create_object(secp256k1_sp_label_ce);
+	secp256k1_sp_label_obj *intern = secp256k1_sp_label_from_obj(obj);
+
+	RETVAL_FALSE;
+	if (secp256k1_silentpayments_recipient_label_create(
+		SECP256K1_G(ctx), &intern->label, label_tweak,
+		(const unsigned char *)scan_key, (uint32_t)m
+	)) {
+		ZEND_TRY_ASSIGN_REF_STRINGL(tweak_zval, (char *)label_tweak, 32);
+		RETVAL_OBJ(obj);
+	} else {
+		zend_object_release(obj);
+	}
+
+	explicit_bzero(label_tweak, sizeof(label_tweak));
+}
+
+PHP_FUNCTION(secp256k1_silentpayments_recipient_label_serialize)
+{
+	zval *label_zval;
+	unsigned char out[33];
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_OBJECT_OF_CLASS(label_zval, secp256k1_sp_label_ce)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_sp_label_obj *intern = secp256k1_sp_label_from_obj(Z_OBJ_P(label_zval));
+
+	secp256k1_silentpayments_recipient_label_serialize(
+		SECP256K1_G(ctx), out, &intern->label
+	);
+
+	RETURN_STRINGL((char *)out, 33);
+}
+
+PHP_FUNCTION(secp256k1_silentpayments_recipient_label_parse)
+{
+	char *in;
+	size_t in_len;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(in, in_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (in_len != 33) {
+		zend_argument_value_error(1, "must be exactly 33 bytes");
+		RETURN_THROWS();
+	}
+
+	zend_object *obj = secp256k1_sp_label_create_object(secp256k1_sp_label_ce);
+	secp256k1_sp_label_obj *intern = secp256k1_sp_label_from_obj(obj);
+
+	if (!secp256k1_silentpayments_recipient_label_parse(
+		SECP256K1_G(ctx), &intern->label, (const unsigned char *)in
+	)) {
+		zend_object_release(obj);
+		RETURN_FALSE;
+	}
+
+	RETURN_OBJ(obj);
+}
+
+PHP_FUNCTION(secp256k1_silentpayments_recipient_create_labeled_spend_pubkey)
+{
+	zval *spend_zval, *label_zval;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_OBJECT_OF_CLASS(spend_zval, secp256k1_pubkey_ce)
+		Z_PARAM_OBJECT_OF_CLASS(label_zval, secp256k1_sp_label_ce)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_pubkey_obj *spend_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(spend_zval));
+	secp256k1_sp_label_obj *label_intern = secp256k1_sp_label_from_obj(Z_OBJ_P(label_zval));
+
+	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
+	secp256k1_pubkey_obj *result = secp256k1_pubkey_from_obj(obj);
+
+	RETVAL_FALSE;
+	if (secp256k1_silentpayments_recipient_create_labeled_spend_pubkey(
+		SECP256K1_G(ctx), &result->pubkey, &spend_intern->pubkey, &label_intern->label
+	)) {
+		RETVAL_OBJ(obj);
+	} else {
+		zend_object_release(obj);
+	}
+}

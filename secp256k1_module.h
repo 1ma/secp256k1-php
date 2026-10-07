@@ -48,6 +48,8 @@ SECP256K1_OPAQUE_TYPE(secp256k1_ecdsa_recoverable_sig, secp256k1_ecdsa_recoverab
 
 #ifdef HAVE_SECP256K1_SILENTPAYMENTS
 # include <secp256k1_silentpayments.h>
+extern zend_class_entry *secp256k1_sp_label_ce;
+SECP256K1_OPAQUE_TYPE(secp256k1_sp_label, secp256k1_silentpayments_label, label)
 #endif
 
 #endif /* SECP256K1_CORE_H */

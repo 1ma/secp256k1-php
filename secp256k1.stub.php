@@ -171,5 +171,21 @@ function secp256k1_ellswift_xdh(string $ell_a64, string $ell_b64, string $seckey
 #endif
 
 #if defined(HAVE_SECP256K1_SILENTPAYMENTS)
+/**
+ * @strict-properties
+ * @not-serializable
+ */
+final class secp256k1_silentpayments_label
+{
+}
+
 function secp256k1_silentpayments_sender_create_outputs(string $outpoint_smallest36, array $recipient_scan_pubkeys, array $recipient_spend_pubkeys, array $keypairs, array $seckeys): array|false {}
+
+function secp256k1_silentpayments_recipient_label_create(string $scan_key32, int $m, string &$label_tweak32): secp256k1_silentpayments_label|false {}
+
+function secp256k1_silentpayments_recipient_label_serialize(secp256k1_silentpayments_label $label): string {}
+
+function secp256k1_silentpayments_recipient_label_parse(string $in33): secp256k1_silentpayments_label|false {}
+
+function secp256k1_silentpayments_recipient_create_labeled_spend_pubkey(secp256k1_pubkey $spend_pubkey, secp256k1_silentpayments_label $label): secp256k1_pubkey|false {}
 #endif

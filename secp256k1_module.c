@@ -72,6 +72,13 @@ SECP256K1_DENY_NEW(secp256k1_ecdsa_recoverable_sig,
 	"secp256k1_ecdsa_recoverable_signature_parse_compact() or secp256k1_ecdsa_sign_recoverable()")
 #endif
 
+#ifdef HAVE_SECP256K1_SILENTPAYMENTS
+zend_class_entry *secp256k1_sp_label_ce;
+SECP256K1_OPAQUE_HANDLERS(secp256k1_sp_label, secp256k1_silentpayments_label, label)
+SECP256K1_DENY_NEW(secp256k1_sp_label,
+	"secp256k1_silentpayments_recipient_label_create() or secp256k1_silentpayments_recipient_label_parse()")
+#endif
+
 PHP_GINIT_FUNCTION(secp256k1)
 {
 	unsigned char seed[32];
@@ -110,6 +117,10 @@ PHP_MINIT_FUNCTION(secp256k1)
 
 #ifdef HAVE_SECP256K1_RECOVERY
 	SECP256K1_REGISTER_CLASS(secp256k1_ecdsa_recoverable_sig, register_class_secp256k1_ecdsa_recoverable_signature);
+#endif
+
+#ifdef HAVE_SECP256K1_SILENTPAYMENTS
+	SECP256K1_REGISTER_CLASS(secp256k1_sp_label, register_class_secp256k1_silentpayments_label);
 #endif
 
 	register_secp256k1_symbols(module_number);
