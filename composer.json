@@ -17,8 +17,8 @@
         ]
     },
     "scripts": {
-        "ext:clean": "make distclean",
-        "ext:secp256k1": [
+        "clean": "make distclean",
+        "secp256k1:build": [
             "cmake -S secp256k1 -B $(pwd)/build/secp256k1 -DCMAKE_INSTALL_PREFIX=$(pwd)/build/secp256k1 -DSECP256K1_ENABLE_MODULE_RECOVERY=ON -DSECP256K1_BUILD_BENCHMARK=OFF -DSECP256K1_BUILD_CTIME_TESTS=OFF -DSECP256K1_BUILD_TESTS=OFF -DSECP256K1_BUILD_EXHAUSTIVE_TESTS=OFF",
             "cmake --build $(pwd)/build/secp256k1 -j$(nproc)",
             "cmake --install $(pwd)/build/secp256k1"
@@ -42,8 +42,8 @@
         ]
     },
     "scripts-descriptions": {
-        "ext:secp256k1": "Build libsecp256k1 from the git submodule with all modules enabled",
-        "ext:clean": "Clean up build artifacts",
+        "clean": "Clean up build artifacts",
+        "secp256k1:build": "Build libsecp256k1 from the git submodule with all modules enabled",
         "ext:build": "Build extension with default configuration",
         "ext:build-cov": "Build extension with coverage instrumentation",
         "ext:test": "Run extension test suite",

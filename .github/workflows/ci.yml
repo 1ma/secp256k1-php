@@ -28,7 +28,7 @@ jobs:
           ini-values: opcache.enable=1, opcache.enable_cli=1, opcache.protect_memory=1
           coverage: none
       - run: |
-          composer ext:secp256k1
+          composer secp256k1:build
           composer ext:build
           ldd modules/secp256k1.so
       - name: Make sure that the extension loads and the job doesn't pass with all tests skipped
@@ -51,7 +51,7 @@ jobs:
           php-version: "8.5"
       - run: |
           sudo apt install lcov
-          composer ext:secp256k1
+          composer secp256k1:build
           composer ext:build-cov
           composer ext:test
           composer ext:cov-report

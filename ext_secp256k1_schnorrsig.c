@@ -1,4 +1,5 @@
 #include "secp256k1_module.h"
+
 #include <secp256k1_schnorrsig.h>
 
 PHP_FUNCTION(secp256k1_schnorrsig_sign32)

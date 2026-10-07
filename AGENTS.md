@@ -69,8 +69,8 @@ to avoid leaving key material in freed memory.
 libsecp256k1 is included as a git submodule and built locally via composer scripts:
 
 ```sh
-composer ext:secp256k1   # cmake build + install to build/secp256k1/
-composer ext:build       # phpize + configure (uses PKG_CONFIG_PATH from build/) + make
+composer secp256k1:build    # cmake build + install to build/secp256k1/
+composer ext:build          # phpize + configure (uses PKG_CONFIG_PATH from build/) + make
 ```
 
 The `build/` directory is gitignored. There is no dependency on a system-installed libsecp256k1.

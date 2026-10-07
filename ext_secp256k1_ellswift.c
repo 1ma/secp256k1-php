@@ -1,51 +1,6 @@
 #include "secp256k1_module.h"
 
-PHP_FUNCTION(secp256k1_ellswift_encode)
-{
-	zval *pubkey_zval;
-	char *rnd;
-	size_t rnd_len;
-	unsigned char ell64[64];
-
-	ZEND_PARSE_PARAMETERS_START(2, 2)
-		Z_PARAM_OBJECT_OF_CLASS(pubkey_zval, secp256k1_pubkey_ce)
-		Z_PARAM_STRING(rnd, rnd_len)
-	ZEND_PARSE_PARAMETERS_END();
-
-	if (rnd_len != 32) {
-		zend_argument_value_error(2, "must be exactly 32 bytes");
-		RETURN_THROWS();
-	}
-
-	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
-
-	secp256k1_ellswift_encode(SECP256K1_G(ctx), ell64, &intern->pubkey, (const unsigned char *)rnd);
-
-	RETVAL_STRINGL((char *)ell64, 64);
-	explicit_bzero(ell64, sizeof(ell64));
-}
-
-PHP_FUNCTION(secp256k1_ellswift_decode)
-{
-	char *ell;
-	size_t ell_len;
-
-	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_STRING(ell, ell_len)
-	ZEND_PARSE_PARAMETERS_END();
-
-	if (ell_len != 64) {
-		zend_argument_value_error(1, "must be exactly 64 bytes");
-		RETURN_THROWS();
-	}
-
-	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
-	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(obj);
-
-	secp256k1_ellswift_decode(SECP256K1_G(ctx), &intern->pubkey, (const unsigned char *)ell);
-
-	RETURN_OBJ(obj);
-}
+#include <secp256k1_ellswift.h>
 
 PHP_FUNCTION(secp256k1_ellswift_create)
 {
@@ -73,6 +28,53 @@ PHP_FUNCTION(secp256k1_ellswift_create)
 		explicit_bzero(ell64, sizeof(ell64));
 		RETURN_FALSE;
 	}
+
+	RETVAL_STRINGL((char *)ell64, 64);
+	explicit_bzero(ell64, sizeof(ell64));
+}
+
+PHP_FUNCTION(secp256k1_ellswift_decode)
+{
+	char *ell;
+	size_t ell_len;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(ell, ell_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (ell_len != 64) {
+		zend_argument_value_error(1, "must be exactly 64 bytes");
+		RETURN_THROWS();
+	}
+
+	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
+	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(obj);
+
+	secp256k1_ellswift_decode(SECP256K1_G(ctx), &intern->pubkey, (const unsigned char *)ell);
+
+	RETURN_OBJ(obj);
+}
+
+PHP_FUNCTION(secp256k1_ellswift_encode)
+{
+	zval *pubkey_zval;
+	char *rnd;
+	size_t rnd_len;
+	unsigned char ell64[64];
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_OBJECT_OF_CLASS(pubkey_zval, secp256k1_pubkey_ce)
+		Z_PARAM_STRING(rnd, rnd_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (rnd_len != 32) {
+		zend_argument_value_error(2, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+
+	secp256k1_ellswift_encode(SECP256K1_G(ctx), ell64, &intern->pubkey, (const unsigned char *)rnd);
 
 	RETVAL_STRINGL((char *)ell64, 64);
 	explicit_bzero(ell64, sizeof(ell64));

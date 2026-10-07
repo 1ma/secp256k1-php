@@ -1,6 +1,11 @@
 /* secp256k1 extension for PHP */
 
 #include "php.h"
+#if PHP_VERSION_ID >= 80400
+# include "ext/random/php_random_csprng.h"
+#else
+# include "ext/random/php_random.h"
+#endif
 #include "ext/standard/info.h"
 #include "php_secp256k1.h"
 #include "secp256k1_module.h"
@@ -42,14 +47,6 @@ ZEND_DECLARE_MODULE_GLOBALS(secp256k1)
 
 zend_class_entry *secp256k1_pubkey_ce;
 zend_class_entry *secp256k1_ecdsa_sig_ce;
-#ifdef HAVE_SECP256K1_EXTRAKEYS
-zend_class_entry *secp256k1_xonly_pubkey_ce;
-zend_class_entry *secp256k1_keypair_ce;
-#endif
-#ifdef HAVE_SECP256K1_RECOVERY
-zend_class_entry *secp256k1_ecdsa_recoverable_sig_ce;
-#endif
-
 SECP256K1_OPAQUE_HANDLERS(secp256k1_pubkey, secp256k1_pubkey, pubkey)
 SECP256K1_OPAQUE_HANDLERS(secp256k1_ecdsa_sig, secp256k1_ecdsa_signature, sig)
 SECP256K1_DENY_NEW(secp256k1_pubkey,
@@ -58,6 +55,8 @@ SECP256K1_DENY_NEW(secp256k1_ecdsa_sig,
 	"secp256k1_ecdsa_signature_parse_compact() or secp256k1_ecdsa_signature_parse_der()")
 
 #ifdef HAVE_SECP256K1_EXTRAKEYS
+zend_class_entry *secp256k1_xonly_pubkey_ce;
+zend_class_entry *secp256k1_keypair_ce;
 SECP256K1_OPAQUE_HANDLERS(secp256k1_xonly_pubkey, secp256k1_xonly_pubkey, xonly_pubkey)
 SECP256K1_OPAQUE_HANDLERS(secp256k1_keypair, secp256k1_keypair, keypair)
 SECP256K1_DENY_NEW(secp256k1_xonly_pubkey,
@@ -67,6 +66,7 @@ SECP256K1_DENY_NEW(secp256k1_keypair,
 #endif
 
 #ifdef HAVE_SECP256K1_RECOVERY
+zend_class_entry *secp256k1_ecdsa_recoverable_sig_ce;
 SECP256K1_OPAQUE_HANDLERS(secp256k1_ecdsa_recoverable_sig, secp256k1_ecdsa_recoverable_signature, sig)
 SECP256K1_DENY_NEW(secp256k1_ecdsa_recoverable_sig,
 	"secp256k1_ecdsa_recoverable_signature_parse_compact() or secp256k1_ecdsa_sign_recoverable()")

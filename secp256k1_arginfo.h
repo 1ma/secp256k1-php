@@ -1,9 +1,28 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 1238747aa3a2961f2047b47b6ce3ef0f63673f1b */
+ * Stub hash: 84f5b46acd0cc1c7545bda344926e0ad22634cdc */
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_context_randomize, 0, 0, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_tagged_sha256, 0, 2, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, tag, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, msg, IS_STRING, 0)
+ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_seckey_verify, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_ec_seckey_negate, 0, 1, MAY_BE_STRING|MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_ec_seckey_tweak_add, 0, 2, MAY_BE_STRING|MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, tweak32, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_secp256k1_ec_seckey_tweak_mul arginfo_secp256k1_ec_seckey_tweak_add
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_ec_pubkey_create, 0, 1, secp256k1_pubkey, MAY_BE_FALSE)
 	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
@@ -16,6 +35,26 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_pubkey_serialize, 0, 1, IS_STRING, 0)
 	ZEND_ARG_OBJ_INFO(0, pubkey, secp256k1_pubkey, 0)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, flags, IS_LONG, 0, "SECP256K1_EC_COMPRESSED")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_pubkey_negate, 0, 1, IS_VOID, 0)
+	ZEND_ARG_OBJ_INFO(1, pubkey, secp256k1_pubkey, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_pubkey_tweak_add, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_OBJ_INFO(1, pubkey, secp256k1_pubkey, 0)
+	ZEND_ARG_TYPE_INFO(0, tweak32, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_secp256k1_ec_pubkey_tweak_mul arginfo_secp256k1_ec_pubkey_tweak_add
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_ec_pubkey_combine, 0, 1, secp256k1_pubkey, MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, pubkeys, IS_ARRAY, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_pubkey_cmp, 0, 2, IS_LONG, 0)
+	ZEND_ARG_OBJ_INFO(0, pubkey1, secp256k1_pubkey, 0)
+	ZEND_ARG_OBJ_INFO(0, pubkey2, secp256k1_pubkey, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_ecdsa_signature_parse_compact, 0, 1, secp256k1_ecdsa_signature, MAY_BE_FALSE)
@@ -47,45 +86,6 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ecdsa_verify, 0, 3, _I
 	ZEND_ARG_OBJ_INFO(0, pubkey, secp256k1_pubkey, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_ec_seckey_negate, 0, 1, MAY_BE_STRING|MAY_BE_FALSE)
-	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_ec_seckey_tweak_add, 0, 2, MAY_BE_STRING|MAY_BE_FALSE)
-	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, tweak32, IS_STRING, 0)
-ZEND_END_ARG_INFO()
-
-#define arginfo_secp256k1_ec_seckey_tweak_mul arginfo_secp256k1_ec_seckey_tweak_add
-
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_pubkey_negate, 0, 1, IS_VOID, 0)
-	ZEND_ARG_OBJ_INFO(1, pubkey, secp256k1_pubkey, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_pubkey_tweak_add, 0, 2, _IS_BOOL, 0)
-	ZEND_ARG_OBJ_INFO(1, pubkey, secp256k1_pubkey, 0)
-	ZEND_ARG_TYPE_INFO(0, tweak32, IS_STRING, 0)
-ZEND_END_ARG_INFO()
-
-#define arginfo_secp256k1_ec_pubkey_tweak_mul arginfo_secp256k1_ec_pubkey_tweak_add
-
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_ec_pubkey_combine, 0, 1, secp256k1_pubkey, MAY_BE_FALSE)
-	ZEND_ARG_TYPE_INFO(0, pubkeys, IS_ARRAY, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ec_pubkey_cmp, 0, 2, IS_LONG, 0)
-	ZEND_ARG_OBJ_INFO(0, pubkey1, secp256k1_pubkey, 0)
-	ZEND_ARG_OBJ_INFO(0, pubkey2, secp256k1_pubkey, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_tagged_sha256, 0, 2, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, tag, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, msg, IS_STRING, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_context_randomize, 0, 0, _IS_BOOL, 0)
-ZEND_END_ARG_INFO()
-
 #if defined(HAVE_SECP256K1_ECDH)
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_ecdh, 0, 2, MAY_BE_STRING|MAY_BE_FALSE)
 	ZEND_ARG_OBJ_INFO(0, pubkey, secp256k1_pubkey, 0)
@@ -94,22 +94,17 @@ ZEND_END_ARG_INFO()
 #endif
 
 #if defined(HAVE_SECP256K1_EXTRAKEYS)
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_secp256k1_xonly_pubkey_from_pubkey, 0, 2, secp256k1_xonly_pubkey, 0)
+	ZEND_ARG_OBJ_INFO(0, pubkey, secp256k1_pubkey, 0)
+	ZEND_ARG_TYPE_INFO(1, parity, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_xonly_pubkey_parse, 0, 1, secp256k1_xonly_pubkey, MAY_BE_FALSE)
 	ZEND_ARG_TYPE_INFO(0, input32, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_xonly_pubkey_serialize, 0, 1, IS_STRING, 0)
 	ZEND_ARG_OBJ_INFO(0, pubkey, secp256k1_xonly_pubkey, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_xonly_pubkey_cmp, 0, 2, IS_LONG, 0)
-	ZEND_ARG_OBJ_INFO(0, pk1, secp256k1_xonly_pubkey, 0)
-	ZEND_ARG_OBJ_INFO(0, pk2, secp256k1_xonly_pubkey, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_secp256k1_xonly_pubkey_from_pubkey, 0, 2, secp256k1_xonly_pubkey, 0)
-	ZEND_ARG_OBJ_INFO(0, pubkey, secp256k1_pubkey, 0)
-	ZEND_ARG_TYPE_INFO(1, parity, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_xonly_pubkey_tweak_add, 0, 2, secp256k1_pubkey, MAY_BE_FALSE)
@@ -124,8 +119,17 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_xonly_pubkey_tweak_add
 	ZEND_ARG_TYPE_INFO(0, tweak32, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_xonly_pubkey_cmp, 0, 2, IS_LONG, 0)
+	ZEND_ARG_OBJ_INFO(0, pk1, secp256k1_xonly_pubkey, 0)
+	ZEND_ARG_OBJ_INFO(0, pk2, secp256k1_xonly_pubkey, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_keypair_create, 0, 1, secp256k1_keypair, MAY_BE_FALSE)
 	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_keypair_sec, 0, 1, IS_STRING, 0)
+	ZEND_ARG_OBJ_INFO(0, keypair, secp256k1_keypair, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_secp256k1_keypair_pub, 0, 1, secp256k1_pubkey, 0)
@@ -135,10 +139,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_secp256k1_keypair_xonly_pub, 0, 2, secp256k1_xonly_pubkey, 0)
 	ZEND_ARG_OBJ_INFO(0, keypair, secp256k1_keypair, 0)
 	ZEND_ARG_TYPE_INFO(1, parity, IS_LONG, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_keypair_sec, 0, 1, IS_STRING, 0)
-	ZEND_ARG_OBJ_INFO(0, keypair, secp256k1_keypair, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_keypair_xonly_tweak_add, 0, 2, _IS_BOOL, 0)
@@ -193,18 +193,18 @@ ZEND_END_ARG_INFO()
 #endif
 
 #if defined(HAVE_SECP256K1_ELLSWIFT)
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ellswift_encode, 0, 2, IS_STRING, 0)
-	ZEND_ARG_OBJ_INFO(0, pubkey, secp256k1_pubkey, 0)
-	ZEND_ARG_TYPE_INFO(0, rnd32, IS_STRING, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_ellswift_create, 0, 1, MAY_BE_STRING|MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, auxrnd32, IS_STRING, 1, "null")
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_secp256k1_ellswift_decode, 0, 1, secp256k1_pubkey, 0)
 	ZEND_ARG_TYPE_INFO(0, ell64, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_ellswift_create, 0, 1, MAY_BE_STRING|MAY_BE_FALSE)
-	ZEND_ARG_TYPE_INFO(0, seckey32, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, auxrnd32, IS_STRING, 1, "null")
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_ellswift_encode, 0, 2, IS_STRING, 0)
+	ZEND_ARG_OBJ_INFO(0, pubkey, secp256k1_pubkey, 0)
+	ZEND_ARG_TYPE_INFO(0, rnd32, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_ellswift_xdh, 0, 4, MAY_BE_STRING|MAY_BE_FALSE)
@@ -217,10 +217,20 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_ellswift_xdh, 0, 4, MA
 ZEND_END_ARG_INFO()
 #endif
 
+ZEND_FUNCTION(secp256k1_context_randomize);
+ZEND_FUNCTION(secp256k1_tagged_sha256);
 ZEND_FUNCTION(secp256k1_ec_seckey_verify);
+ZEND_FUNCTION(secp256k1_ec_seckey_negate);
+ZEND_FUNCTION(secp256k1_ec_seckey_tweak_add);
+ZEND_FUNCTION(secp256k1_ec_seckey_tweak_mul);
 ZEND_FUNCTION(secp256k1_ec_pubkey_create);
 ZEND_FUNCTION(secp256k1_ec_pubkey_parse);
 ZEND_FUNCTION(secp256k1_ec_pubkey_serialize);
+ZEND_FUNCTION(secp256k1_ec_pubkey_negate);
+ZEND_FUNCTION(secp256k1_ec_pubkey_tweak_add);
+ZEND_FUNCTION(secp256k1_ec_pubkey_tweak_mul);
+ZEND_FUNCTION(secp256k1_ec_pubkey_combine);
+ZEND_FUNCTION(secp256k1_ec_pubkey_cmp);
 ZEND_FUNCTION(secp256k1_ecdsa_signature_parse_compact);
 ZEND_FUNCTION(secp256k1_ecdsa_signature_parse_der);
 ZEND_FUNCTION(secp256k1_ecdsa_signature_serialize_compact);
@@ -228,30 +238,20 @@ ZEND_FUNCTION(secp256k1_ecdsa_signature_serialize_der);
 ZEND_FUNCTION(secp256k1_ecdsa_signature_normalize);
 ZEND_FUNCTION(secp256k1_ecdsa_sign);
 ZEND_FUNCTION(secp256k1_ecdsa_verify);
-ZEND_FUNCTION(secp256k1_ec_seckey_negate);
-ZEND_FUNCTION(secp256k1_ec_seckey_tweak_add);
-ZEND_FUNCTION(secp256k1_ec_seckey_tweak_mul);
-ZEND_FUNCTION(secp256k1_ec_pubkey_negate);
-ZEND_FUNCTION(secp256k1_ec_pubkey_tweak_add);
-ZEND_FUNCTION(secp256k1_ec_pubkey_tweak_mul);
-ZEND_FUNCTION(secp256k1_ec_pubkey_combine);
-ZEND_FUNCTION(secp256k1_ec_pubkey_cmp);
-ZEND_FUNCTION(secp256k1_tagged_sha256);
-ZEND_FUNCTION(secp256k1_context_randomize);
 #if defined(HAVE_SECP256K1_ECDH)
 ZEND_FUNCTION(secp256k1_ecdh);
 #endif
 #if defined(HAVE_SECP256K1_EXTRAKEYS)
+ZEND_FUNCTION(secp256k1_xonly_pubkey_from_pubkey);
 ZEND_FUNCTION(secp256k1_xonly_pubkey_parse);
 ZEND_FUNCTION(secp256k1_xonly_pubkey_serialize);
-ZEND_FUNCTION(secp256k1_xonly_pubkey_cmp);
-ZEND_FUNCTION(secp256k1_xonly_pubkey_from_pubkey);
 ZEND_FUNCTION(secp256k1_xonly_pubkey_tweak_add);
 ZEND_FUNCTION(secp256k1_xonly_pubkey_tweak_add_check);
+ZEND_FUNCTION(secp256k1_xonly_pubkey_cmp);
 ZEND_FUNCTION(secp256k1_keypair_create);
+ZEND_FUNCTION(secp256k1_keypair_sec);
 ZEND_FUNCTION(secp256k1_keypair_pub);
 ZEND_FUNCTION(secp256k1_keypair_xonly_pub);
-ZEND_FUNCTION(secp256k1_keypair_sec);
 ZEND_FUNCTION(secp256k1_keypair_xonly_tweak_add);
 #endif
 #if defined(HAVE_SECP256K1_RECOVERY)
@@ -267,17 +267,27 @@ ZEND_FUNCTION(secp256k1_schnorrsig_sign_custom);
 ZEND_FUNCTION(secp256k1_schnorrsig_verify);
 #endif
 #if defined(HAVE_SECP256K1_ELLSWIFT)
-ZEND_FUNCTION(secp256k1_ellswift_encode);
-ZEND_FUNCTION(secp256k1_ellswift_decode);
 ZEND_FUNCTION(secp256k1_ellswift_create);
+ZEND_FUNCTION(secp256k1_ellswift_decode);
+ZEND_FUNCTION(secp256k1_ellswift_encode);
 ZEND_FUNCTION(secp256k1_ellswift_xdh);
 #endif
 
 static const zend_function_entry ext_functions[] = {
+	ZEND_FE(secp256k1_context_randomize, arginfo_secp256k1_context_randomize)
+	ZEND_FE(secp256k1_tagged_sha256, arginfo_secp256k1_tagged_sha256)
 	ZEND_FE(secp256k1_ec_seckey_verify, arginfo_secp256k1_ec_seckey_verify)
+	ZEND_FE(secp256k1_ec_seckey_negate, arginfo_secp256k1_ec_seckey_negate)
+	ZEND_FE(secp256k1_ec_seckey_tweak_add, arginfo_secp256k1_ec_seckey_tweak_add)
+	ZEND_FE(secp256k1_ec_seckey_tweak_mul, arginfo_secp256k1_ec_seckey_tweak_mul)
 	ZEND_FE(secp256k1_ec_pubkey_create, arginfo_secp256k1_ec_pubkey_create)
 	ZEND_FE(secp256k1_ec_pubkey_parse, arginfo_secp256k1_ec_pubkey_parse)
 	ZEND_FE(secp256k1_ec_pubkey_serialize, arginfo_secp256k1_ec_pubkey_serialize)
+	ZEND_FE(secp256k1_ec_pubkey_negate, arginfo_secp256k1_ec_pubkey_negate)
+	ZEND_FE(secp256k1_ec_pubkey_tweak_add, arginfo_secp256k1_ec_pubkey_tweak_add)
+	ZEND_FE(secp256k1_ec_pubkey_tweak_mul, arginfo_secp256k1_ec_pubkey_tweak_mul)
+	ZEND_FE(secp256k1_ec_pubkey_combine, arginfo_secp256k1_ec_pubkey_combine)
+	ZEND_FE(secp256k1_ec_pubkey_cmp, arginfo_secp256k1_ec_pubkey_cmp)
 	ZEND_FE(secp256k1_ecdsa_signature_parse_compact, arginfo_secp256k1_ecdsa_signature_parse_compact)
 	ZEND_FE(secp256k1_ecdsa_signature_parse_der, arginfo_secp256k1_ecdsa_signature_parse_der)
 	ZEND_FE(secp256k1_ecdsa_signature_serialize_compact, arginfo_secp256k1_ecdsa_signature_serialize_compact)
@@ -285,30 +295,20 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_ecdsa_signature_normalize, arginfo_secp256k1_ecdsa_signature_normalize)
 	ZEND_FE(secp256k1_ecdsa_sign, arginfo_secp256k1_ecdsa_sign)
 	ZEND_FE(secp256k1_ecdsa_verify, arginfo_secp256k1_ecdsa_verify)
-	ZEND_FE(secp256k1_ec_seckey_negate, arginfo_secp256k1_ec_seckey_negate)
-	ZEND_FE(secp256k1_ec_seckey_tweak_add, arginfo_secp256k1_ec_seckey_tweak_add)
-	ZEND_FE(secp256k1_ec_seckey_tweak_mul, arginfo_secp256k1_ec_seckey_tweak_mul)
-	ZEND_FE(secp256k1_ec_pubkey_negate, arginfo_secp256k1_ec_pubkey_negate)
-	ZEND_FE(secp256k1_ec_pubkey_tweak_add, arginfo_secp256k1_ec_pubkey_tweak_add)
-	ZEND_FE(secp256k1_ec_pubkey_tweak_mul, arginfo_secp256k1_ec_pubkey_tweak_mul)
-	ZEND_FE(secp256k1_ec_pubkey_combine, arginfo_secp256k1_ec_pubkey_combine)
-	ZEND_FE(secp256k1_ec_pubkey_cmp, arginfo_secp256k1_ec_pubkey_cmp)
-	ZEND_FE(secp256k1_tagged_sha256, arginfo_secp256k1_tagged_sha256)
-	ZEND_FE(secp256k1_context_randomize, arginfo_secp256k1_context_randomize)
 #if defined(HAVE_SECP256K1_ECDH)
 	ZEND_FE(secp256k1_ecdh, arginfo_secp256k1_ecdh)
 #endif
 #if defined(HAVE_SECP256K1_EXTRAKEYS)
+	ZEND_FE(secp256k1_xonly_pubkey_from_pubkey, arginfo_secp256k1_xonly_pubkey_from_pubkey)
 	ZEND_FE(secp256k1_xonly_pubkey_parse, arginfo_secp256k1_xonly_pubkey_parse)
 	ZEND_FE(secp256k1_xonly_pubkey_serialize, arginfo_secp256k1_xonly_pubkey_serialize)
-	ZEND_FE(secp256k1_xonly_pubkey_cmp, arginfo_secp256k1_xonly_pubkey_cmp)
-	ZEND_FE(secp256k1_xonly_pubkey_from_pubkey, arginfo_secp256k1_xonly_pubkey_from_pubkey)
 	ZEND_FE(secp256k1_xonly_pubkey_tweak_add, arginfo_secp256k1_xonly_pubkey_tweak_add)
 	ZEND_FE(secp256k1_xonly_pubkey_tweak_add_check, arginfo_secp256k1_xonly_pubkey_tweak_add_check)
+	ZEND_FE(secp256k1_xonly_pubkey_cmp, arginfo_secp256k1_xonly_pubkey_cmp)
 	ZEND_FE(secp256k1_keypair_create, arginfo_secp256k1_keypair_create)
+	ZEND_FE(secp256k1_keypair_sec, arginfo_secp256k1_keypair_sec)
 	ZEND_FE(secp256k1_keypair_pub, arginfo_secp256k1_keypair_pub)
 	ZEND_FE(secp256k1_keypair_xonly_pub, arginfo_secp256k1_keypair_xonly_pub)
-	ZEND_FE(secp256k1_keypair_sec, arginfo_secp256k1_keypair_sec)
 	ZEND_FE(secp256k1_keypair_xonly_tweak_add, arginfo_secp256k1_keypair_xonly_tweak_add)
 #endif
 #if defined(HAVE_SECP256K1_RECOVERY)
@@ -324,9 +324,9 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_schnorrsig_verify, arginfo_secp256k1_schnorrsig_verify)
 #endif
 #if defined(HAVE_SECP256K1_ELLSWIFT)
-	ZEND_FE(secp256k1_ellswift_encode, arginfo_secp256k1_ellswift_encode)
-	ZEND_FE(secp256k1_ellswift_decode, arginfo_secp256k1_ellswift_decode)
 	ZEND_FE(secp256k1_ellswift_create, arginfo_secp256k1_ellswift_create)
+	ZEND_FE(secp256k1_ellswift_decode, arginfo_secp256k1_ellswift_decode)
+	ZEND_FE(secp256k1_ellswift_encode, arginfo_secp256k1_ellswift_encode)
 	ZEND_FE(secp256k1_ellswift_xdh, arginfo_secp256k1_ellswift_xdh)
 #endif
 	ZEND_FE_END
