@@ -38,7 +38,7 @@ extrakeys module => On
 schnorrsig module => On
 ellswift module => On
 musig module => Not supported
-silentpayments module => Not supported
+silentpayments module => On
 ```
 
 ## Manual Build
@@ -87,14 +87,14 @@ what I want while I catch a lot of errors and learn new things along the way.
 I feel confident enough about my understanding of this binding to claim full ownership of the code as if
 I had written it myself.
 
-### Why are the `musig` and `silentpayments` not supported?
+### Why is the `musig` module not supported?
 
-The APIs of these modules are remarkably complex and I don't fully understand them at the same level as the others.
+The API of this module is remarkably complex and I don't fully understand it at the same level as the others.
 
 I decided to put off the implementation for later releases, since the base module plus extrakeys+schnorrsig
 is probably what 99% of users will care about.
 
-If you have a use case for the musig or silentpayments APIs let me know in a GitHub issue.
+If you have a use case for the musig API let me know in a GitHub issue.
 
 All the other secp256k1 modules are supported, but only if they were enabled in libsecp256k1
 when it was built or packaged for your distro.
