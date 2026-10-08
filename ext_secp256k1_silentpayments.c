@@ -158,7 +158,7 @@ PHP_FUNCTION(secp256k1_silentpayments_recipient_label_create)
 	}
 
 	if (m < 0 || m > UINT32_MAX) {
-		zend_argument_value_error(2, "must be between 0 and 2^32-1");
+		zend_argument_value_error(2, "must be between 0 and (2^32)-1");
 		RETURN_THROWS();
 	}
 

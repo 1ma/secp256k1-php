@@ -86,6 +86,6 @@ bool(true)
 bool(true)
 Cannot instantiate secp256k1_silentpayments_label directly, use secp256k1_silentpayments_recipient_label_create() or secp256k1_silentpayments_recipient_label_parse()
 secp256k1_silentpayments_recipient_label_create(): Argument #1 ($scan_key32) must be exactly 32 bytes
-secp256k1_silentpayments_recipient_label_create(): Argument #2 ($m) must be between 0 and 2^32-1
+secp256k1_silentpayments_recipient_label_create(): Argument #2 ($m) must be between 0 and (2^32)-1
 bool(false)
 secp256k1_silentpayments_recipient_label_parse(): Argument #1 ($in33) must be exactly 33 bytes
