@@ -50,6 +50,13 @@ AS_VAR_IF([PHP_SECP256K1], [no],, [
     [],
     [$LIBSECP256K1_LIBS])
 
+  PHP_CHECK_LIBRARY([secp256k1], [secp256k1_musig_nonce_gen],
+    [AC_DEFINE([HAVE_SECP256K1_MUSIG], [1],
+      [Define to 1 if libsecp256k1 has the musig module.])
+     PHP_SECP256K1_SOURCES="$PHP_SECP256K1_SOURCES ext_secp256k1_musig.c"],
+    [],
+    [$LIBSECP256K1_LIBS])
+
   PHP_CHECK_LIBRARY([secp256k1], [secp256k1_silentpayments_recipient_label_create],
     [AC_DEFINE([HAVE_SECP256K1_SILENTPAYMENTS], [1],
       [Define to 1 if libsecp256k1 has the silentpayments module.])

@@ -46,6 +46,22 @@ SECP256K1_OPAQUE_TYPE(secp256k1_ecdsa_recoverable_sig, secp256k1_ecdsa_recoverab
 # define SECP256K1_ELLSWIFT_XDH_HASH_PREFIX 1
 #endif
 
+#ifdef HAVE_SECP256K1_MUSIG
+# include <secp256k1_musig.h>
+extern zend_class_entry *secp256k1_musig_keyagg_cache_ce;
+extern zend_class_entry *secp256k1_musig_secnonce_ce;
+extern zend_class_entry *secp256k1_musig_pubnonce_ce;
+extern zend_class_entry *secp256k1_musig_aggnonce_ce;
+extern zend_class_entry *secp256k1_musig_session_ce;
+extern zend_class_entry *secp256k1_musig_partial_sig_ce;
+SECP256K1_OPAQUE_TYPE(secp256k1_musig_keyagg_cache, secp256k1_musig_keyagg_cache, cache)
+SECP256K1_OPAQUE_TYPE(secp256k1_musig_secnonce, secp256k1_musig_secnonce, secnonce)
+SECP256K1_OPAQUE_TYPE(secp256k1_musig_pubnonce, secp256k1_musig_pubnonce, pubnonce)
+SECP256K1_OPAQUE_TYPE(secp256k1_musig_aggnonce, secp256k1_musig_aggnonce, aggnonce)
+SECP256K1_OPAQUE_TYPE(secp256k1_musig_session, secp256k1_musig_session, session)
+SECP256K1_OPAQUE_TYPE(secp256k1_musig_partial_sig, secp256k1_musig_partial_sig, partial_sig)
+#endif
+
 #ifdef HAVE_SECP256K1_SILENTPAYMENTS
 # include <secp256k1_silentpayments.h>
 extern zend_class_entry *secp256k1_sp_label_ce;

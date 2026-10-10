@@ -72,6 +72,33 @@ SECP256K1_DENY_NEW(secp256k1_ecdsa_recoverable_sig,
 	"secp256k1_ecdsa_recoverable_signature_parse_compact() or secp256k1_ecdsa_sign_recoverable()")
 #endif
 
+#ifdef HAVE_SECP256K1_MUSIG
+zend_class_entry *secp256k1_musig_keyagg_cache_ce;
+zend_class_entry *secp256k1_musig_secnonce_ce;
+zend_class_entry *secp256k1_musig_pubnonce_ce;
+zend_class_entry *secp256k1_musig_aggnonce_ce;
+zend_class_entry *secp256k1_musig_session_ce;
+zend_class_entry *secp256k1_musig_partial_sig_ce;
+SECP256K1_OPAQUE_HANDLERS(secp256k1_musig_keyagg_cache, secp256k1_musig_keyagg_cache, cache)
+SECP256K1_OPAQUE_HANDLERS(secp256k1_musig_secnonce, secp256k1_musig_secnonce, secnonce)
+SECP256K1_OPAQUE_HANDLERS(secp256k1_musig_pubnonce, secp256k1_musig_pubnonce, pubnonce)
+SECP256K1_OPAQUE_HANDLERS(secp256k1_musig_aggnonce, secp256k1_musig_aggnonce, aggnonce)
+SECP256K1_OPAQUE_HANDLERS(secp256k1_musig_session, secp256k1_musig_session, session)
+SECP256K1_OPAQUE_HANDLERS(secp256k1_musig_partial_sig, secp256k1_musig_partial_sig, partial_sig)
+SECP256K1_DENY_NEW(secp256k1_musig_keyagg_cache,
+	"secp256k1_musig_pubkey_agg()")
+SECP256K1_DENY_NEW(secp256k1_musig_secnonce,
+	"secp256k1_musig_nonce_gen() or secp256k1_musig_nonce_gen_counter()")
+SECP256K1_DENY_NEW(secp256k1_musig_pubnonce,
+	"secp256k1_musig_nonce_gen() or secp256k1_musig_nonce_gen_counter()")
+SECP256K1_DENY_NEW(secp256k1_musig_aggnonce,
+	"secp256k1_musig_nonce_agg()")
+SECP256K1_DENY_NEW(secp256k1_musig_session,
+	"secp256k1_musig_nonce_process()")
+SECP256K1_DENY_NEW(secp256k1_musig_partial_sig,
+	"secp256k1_musig_partial_sign()")
+#endif
+
 #ifdef HAVE_SECP256K1_SILENTPAYMENTS
 zend_class_entry *secp256k1_sp_label_ce;
 zend_class_entry *secp256k1_sp_prevouts_ce;
@@ -123,6 +150,15 @@ PHP_MINIT_FUNCTION(secp256k1)
 	SECP256K1_REGISTER_CLASS(secp256k1_ecdsa_recoverable_sig, register_class_secp256k1_ecdsa_recoverable_signature);
 #endif
 
+#ifdef HAVE_SECP256K1_MUSIG
+	SECP256K1_REGISTER_CLASS(secp256k1_musig_keyagg_cache, register_class_secp256k1_musig_keyagg_cache);
+	SECP256K1_REGISTER_CLASS(secp256k1_musig_secnonce, register_class_secp256k1_musig_secnonce);
+	SECP256K1_REGISTER_CLASS(secp256k1_musig_pubnonce, register_class_secp256k1_musig_pubnonce);
+	SECP256K1_REGISTER_CLASS(secp256k1_musig_aggnonce, register_class_secp256k1_musig_aggnonce);
+	SECP256K1_REGISTER_CLASS(secp256k1_musig_session, register_class_secp256k1_musig_session);
+	SECP256K1_REGISTER_CLASS(secp256k1_musig_partial_sig, register_class_secp256k1_musig_partial_sig);
+#endif
+
 #ifdef HAVE_SECP256K1_SILENTPAYMENTS
 	SECP256K1_REGISTER_CLASS(secp256k1_sp_label, register_class_secp256k1_silentpayments_label);
 	SECP256K1_REGISTER_CLASS(secp256k1_sp_prevouts, register_class_secp256k1_silentpayments_prevouts_summary);
@@ -164,7 +200,11 @@ PHP_MINFO_FUNCTION(secp256k1)
 #else
 	php_info_print_table_row(2, "ellswift module", "Off");
 #endif
-	php_info_print_table_row(2, "musig module", "Not supported");
+#ifdef HAVE_SECP256K1_MUSIG
+	php_info_print_table_row(2, "musig module", "On");
+#else
+	php_info_print_table_row(2, "musig module", "Off");
+#endif
 #ifdef HAVE_SECP256K1_SILENTPAYMENTS
 	php_info_print_table_row(2, "silentpayments module", "On");
 #else

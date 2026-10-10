@@ -170,6 +170,56 @@ function secp256k1_ellswift_encode(secp256k1_pubkey $pubkey, string $rnd32): str
 function secp256k1_ellswift_xdh(string $ell_a64, string $ell_b64, string $seckey32, bool $party, int $hashfn = SECP256K1_ELLSWIFT_XDH_HASH_BIP324, ?string $prefix64 = null): string|false {}
 #endif
 
+#if defined(HAVE_SECP256K1_MUSIG)
+/**
+ * @strict-properties
+ * @not-serializable
+ */
+final class secp256k1_musig_keyagg_cache
+{
+}
+
+/**
+ * @strict-properties
+ * @not-serializable
+ */
+final class secp256k1_musig_secnonce
+{
+}
+
+/**
+ * @strict-properties
+ * @not-serializable
+ */
+final class secp256k1_musig_pubnonce
+{
+}
+
+/**
+ * @strict-properties
+ * @not-serializable
+ */
+final class secp256k1_musig_aggnonce
+{
+}
+
+/**
+ * @strict-properties
+ * @not-serializable
+ */
+final class secp256k1_musig_session
+{
+}
+
+/**
+ * @strict-properties
+ * @not-serializable
+ */
+final class secp256k1_musig_partial_sig
+{
+}
+#endif
+
 #if defined(HAVE_SECP256K1_SILENTPAYMENTS)
 function secp256k1_silentpayments_sender_create_outputs(string $outpoint_smallest36, array $recipient_scan_pubkeys, array $recipient_spend_pubkeys, array $keypairs, array $seckeys): array|false {}
 
