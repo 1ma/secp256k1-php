@@ -58,3 +58,57 @@ PHP_FUNCTION(secp256k1_musig_pubkey_get)
 		RETVAL_OBJ(obj);
 	}
 }
+
+PHP_FUNCTION(secp256k1_musig_pubkey_ec_tweak_add)
+{
+	zval *cache_zval;
+	char *tweak;
+	size_t tweak_len;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_OBJECT_OF_CLASS(cache_zval, secp256k1_musig_keyagg_cache_ce)
+		Z_PARAM_STRING(tweak, tweak_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (tweak_len != 32) {
+		zend_argument_value_error(2, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	secp256k1_musig_keyagg_cache_obj *cache_intern = secp256k1_musig_keyagg_cache_from_obj(Z_OBJ_P(cache_zval));
+	secp256k1_pubkey output_pubkey;
+
+	RETVAL_FALSE;
+	if (secp256k1_musig_pubkey_ec_tweak_add(SECP256K1_G(ctx), &output_pubkey, &cache_intern->cache, (const unsigned char *)tweak)) {
+		zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
+		secp256k1_pubkey_from_obj(obj)->pubkey = output_pubkey;
+		RETVAL_OBJ(obj);
+	}
+}
+
+PHP_FUNCTION(secp256k1_musig_pubkey_xonly_tweak_add)
+{
+	zval *cache_zval;
+	char *tweak;
+	size_t tweak_len;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_OBJECT_OF_CLASS(cache_zval, secp256k1_musig_keyagg_cache_ce)
+		Z_PARAM_STRING(tweak, tweak_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (tweak_len != 32) {
+		zend_argument_value_error(2, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	secp256k1_musig_keyagg_cache_obj *cache_intern = secp256k1_musig_keyagg_cache_from_obj(Z_OBJ_P(cache_zval));
+	secp256k1_pubkey output_pubkey;
+
+	RETVAL_FALSE;
+	if (secp256k1_musig_pubkey_xonly_tweak_add(SECP256K1_G(ctx), &output_pubkey, &cache_intern->cache, (const unsigned char *)tweak)) {
+		zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
+		secp256k1_pubkey_from_obj(obj)->pubkey = output_pubkey;
+		RETVAL_OBJ(obj);
+	}
+}

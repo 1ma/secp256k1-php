@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 1078fb93faa3086a9ef4a93ee5e0b6b348263934 */
+ * Stub hash: 4c2e0c0c9d48c3a9e81ff099201c4e447be3505d */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_context_randomize, 0, 0, _IS_BOOL, 0)
 ZEND_END_ARG_INFO()
@@ -225,6 +225,13 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_musig_pubkey_get, 0, 1, secp256k1_pubkey, MAY_BE_FALSE)
 	ZEND_ARG_OBJ_INFO(0, keyagg_cache, secp256k1_musig_keyagg_cache, 0)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_musig_pubkey_ec_tweak_add, 0, 2, secp256k1_pubkey, MAY_BE_FALSE)
+	ZEND_ARG_OBJ_INFO(0, keyagg_cache, secp256k1_musig_keyagg_cache, 0)
+	ZEND_ARG_TYPE_INFO(0, tweak32, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_secp256k1_musig_pubkey_xonly_tweak_add arginfo_secp256k1_musig_pubkey_ec_tweak_add
 #endif
 
 #if defined(HAVE_SECP256K1_SILENTPAYMENTS)
@@ -328,6 +335,8 @@ ZEND_FUNCTION(secp256k1_ellswift_xdh);
 #if defined(HAVE_SECP256K1_MUSIG)
 ZEND_FUNCTION(secp256k1_musig_pubkey_agg);
 ZEND_FUNCTION(secp256k1_musig_pubkey_get);
+ZEND_FUNCTION(secp256k1_musig_pubkey_ec_tweak_add);
+ZEND_FUNCTION(secp256k1_musig_pubkey_xonly_tweak_add);
 #endif
 #if defined(HAVE_SECP256K1_SILENTPAYMENTS)
 ZEND_FUNCTION(secp256k1_silentpayments_sender_create_outputs);
@@ -398,6 +407,8 @@ static const zend_function_entry ext_functions[] = {
 #if defined(HAVE_SECP256K1_MUSIG)
 	ZEND_FE(secp256k1_musig_pubkey_agg, arginfo_secp256k1_musig_pubkey_agg)
 	ZEND_FE(secp256k1_musig_pubkey_get, arginfo_secp256k1_musig_pubkey_get)
+	ZEND_FE(secp256k1_musig_pubkey_ec_tweak_add, arginfo_secp256k1_musig_pubkey_ec_tweak_add)
+	ZEND_FE(secp256k1_musig_pubkey_xonly_tweak_add, arginfo_secp256k1_musig_pubkey_xonly_tweak_add)
 #endif
 #if defined(HAVE_SECP256K1_SILENTPAYMENTS)
 	ZEND_FE(secp256k1_silentpayments_sender_create_outputs, arginfo_secp256k1_silentpayments_sender_create_outputs)

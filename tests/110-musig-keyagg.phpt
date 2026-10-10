@@ -1,5 +1,5 @@
 --TEST--
-secp256k1_musig_pubkey_agg() and secp256k1_musig_pubkey_get()
+secp256k1_musig key aggregation and tweaking
 --EXTENSIONS--
 secp256k1
 --SKIPIF--
@@ -31,6 +31,41 @@ var_dump(secp256k1_ec_pubkey_cmp($agg_pk, $agg_pk_rev) !== 0);
 $cache_single = secp256k1_musig_pubkey_agg([$pk1]);
 var_dump($cache_single instanceof secp256k1_musig_keyagg_cache);
 
+// EC tweak: output matches ec_pubkey_tweak_add on the aggregate pubkey
+$tweak = str_repeat("\xAB", 32);
+$cache_ec = secp256k1_musig_pubkey_agg([$pk1, $pk2]);
+$agg_pk_before = secp256k1_musig_pubkey_get($cache_ec);
+$tweaked_pk = secp256k1_musig_pubkey_ec_tweak_add($cache_ec, $tweak);
+var_dump($tweaked_pk instanceof secp256k1_pubkey);
+
+// Verify equivalence with ec_pubkey_tweak_add
+$agg_pk_copy = secp256k1_musig_pubkey_get(secp256k1_musig_pubkey_agg([$pk1, $pk2]));
+secp256k1_ec_pubkey_tweak_add($agg_pk_copy, $tweak);
+var_dump(secp256k1_ec_pubkey_cmp($tweaked_pk, $agg_pk_copy) === 0);
+
+// X-only tweak: verify with xonly_pubkey_tweak_add_check
+$cache_xonly = secp256k1_musig_pubkey_agg([$pk1, $pk2]);
+$agg_xonly = secp256k1_xonly_pubkey_from_pubkey(secp256k1_musig_pubkey_get($cache_xonly), $parity);
+$agg_xonly_ser = secp256k1_xonly_pubkey_serialize($agg_xonly);
+$tweaked_pk = secp256k1_musig_pubkey_xonly_tweak_add($cache_xonly, $tweak);
+var_dump($tweaked_pk instanceof secp256k1_pubkey);
+$tweaked_xonly = secp256k1_xonly_pubkey_from_pubkey($tweaked_pk, $tweaked_parity);
+$tweaked_ser = secp256k1_xonly_pubkey_serialize($tweaked_xonly);
+var_dump(secp256k1_xonly_pubkey_tweak_add_check($tweaked_ser, $tweaked_parity, $agg_xonly, $tweak));
+
+// Error: wrong tweak length
+try {
+    secp256k1_musig_pubkey_ec_tweak_add($cache, "short");
+} catch (ValueError $e) {
+    echo $e->getMessage() . "\n";
+}
+
+try {
+    secp256k1_musig_pubkey_xonly_tweak_add($cache, "short");
+} catch (ValueError $e) {
+    echo $e->getMessage() . "\n";
+}
+
 // Error: empty array
 try {
     secp256k1_musig_pubkey_agg([]);
@@ -59,6 +94,12 @@ bool(true)
 bool(true)
 bool(true)
 bool(true)
+bool(true)
+bool(true)
+bool(true)
+bool(true)
+secp256k1_musig_pubkey_ec_tweak_add(): Argument #2 ($tweak32) must be exactly 32 bytes
+secp256k1_musig_pubkey_xonly_tweak_add(): Argument #2 ($tweak32) must be exactly 32 bytes
 secp256k1_musig_pubkey_agg(): Argument #1 ($pubkeys) must not be empty
 secp256k1_musig_pubkey_agg(): Argument #1 ($pubkeys) must contain only secp256k1_pubkey objects
 Cannot instantiate secp256k1_musig_keyagg_cache directly, use secp256k1_musig_pubkey_agg()

@@ -222,6 +222,10 @@ final class secp256k1_musig_partial_sig
 function secp256k1_musig_pubkey_agg(array $pubkeys): secp256k1_musig_keyagg_cache|false {}
 
 function secp256k1_musig_pubkey_get(secp256k1_musig_keyagg_cache $keyagg_cache): secp256k1_pubkey|false {}
+
+function secp256k1_musig_pubkey_ec_tweak_add(secp256k1_musig_keyagg_cache $keyagg_cache, string $tweak32): secp256k1_pubkey|false {}
+
+function secp256k1_musig_pubkey_xonly_tweak_add(secp256k1_musig_keyagg_cache $keyagg_cache, string $tweak32): secp256k1_pubkey|false {}
 #endif
 
 #if defined(HAVE_SECP256K1_SILENTPAYMENTS)
