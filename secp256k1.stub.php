@@ -226,6 +226,18 @@ function secp256k1_musig_pubkey_get(secp256k1_musig_keyagg_cache $keyagg_cache):
 function secp256k1_musig_pubkey_ec_tweak_add(secp256k1_musig_keyagg_cache $keyagg_cache, string $tweak32): secp256k1_pubkey|false {}
 
 function secp256k1_musig_pubkey_xonly_tweak_add(secp256k1_musig_keyagg_cache $keyagg_cache, string $tweak32): secp256k1_pubkey|false {}
+
+function secp256k1_musig_pubnonce_parse(string $in66): secp256k1_musig_pubnonce|false {}
+
+function secp256k1_musig_pubnonce_serialize(secp256k1_musig_pubnonce $nonce): string {}
+
+function secp256k1_musig_aggnonce_parse(string $in66): secp256k1_musig_aggnonce|false {}
+
+function secp256k1_musig_aggnonce_serialize(secp256k1_musig_aggnonce $nonce): string {}
+
+function secp256k1_musig_partial_sig_parse(string $in32): secp256k1_musig_partial_sig|false {}
+
+function secp256k1_musig_partial_sig_serialize(secp256k1_musig_partial_sig $sig): string {}
 #endif
 
 #if defined(HAVE_SECP256K1_SILENTPAYMENTS)

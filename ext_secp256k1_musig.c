@@ -112,3 +112,126 @@ PHP_FUNCTION(secp256k1_musig_pubkey_xonly_tweak_add)
 		RETVAL_OBJ(obj);
 	}
 }
+
+PHP_FUNCTION(secp256k1_musig_pubnonce_parse)
+{
+	char *input;
+	size_t input_len;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(input, input_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (input_len != 66) {
+		zend_argument_value_error(1, "must be exactly 66 bytes");
+		RETURN_THROWS();
+	}
+
+	secp256k1_musig_pubnonce pubnonce;
+
+	RETVAL_FALSE;
+	if (secp256k1_musig_pubnonce_parse(SECP256K1_G(ctx), &pubnonce, (const unsigned char *)input)) {
+		zend_object *obj = secp256k1_musig_pubnonce_create_object(secp256k1_musig_pubnonce_ce);
+		secp256k1_musig_pubnonce_from_obj(obj)->pubnonce = pubnonce;
+		RETVAL_OBJ(obj);
+	}
+}
+
+PHP_FUNCTION(secp256k1_musig_pubnonce_serialize)
+{
+	zval *nonce_zval;
+	unsigned char output[66];
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_OBJECT_OF_CLASS(nonce_zval, secp256k1_musig_pubnonce_ce)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_musig_pubnonce_obj *intern = secp256k1_musig_pubnonce_from_obj(Z_OBJ_P(nonce_zval));
+
+	secp256k1_musig_pubnonce_serialize(SECP256K1_G(ctx), output, &intern->pubnonce);
+
+	RETVAL_STRINGL((char *)output, 66);
+	explicit_bzero(output, sizeof(output));
+}
+
+PHP_FUNCTION(secp256k1_musig_aggnonce_parse)
+{
+	char *input;
+	size_t input_len;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(input, input_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (input_len != 66) {
+		zend_argument_value_error(1, "must be exactly 66 bytes");
+		RETURN_THROWS();
+	}
+
+	secp256k1_musig_aggnonce aggnonce;
+
+	RETVAL_FALSE;
+	if (secp256k1_musig_aggnonce_parse(SECP256K1_G(ctx), &aggnonce, (const unsigned char *)input)) {
+		zend_object *obj = secp256k1_musig_aggnonce_create_object(secp256k1_musig_aggnonce_ce);
+		secp256k1_musig_aggnonce_from_obj(obj)->aggnonce = aggnonce;
+		RETVAL_OBJ(obj);
+	}
+}
+
+PHP_FUNCTION(secp256k1_musig_aggnonce_serialize)
+{
+	zval *nonce_zval;
+	unsigned char output[66];
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_OBJECT_OF_CLASS(nonce_zval, secp256k1_musig_aggnonce_ce)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_musig_aggnonce_obj *intern = secp256k1_musig_aggnonce_from_obj(Z_OBJ_P(nonce_zval));
+
+	secp256k1_musig_aggnonce_serialize(SECP256K1_G(ctx), output, &intern->aggnonce);
+
+	RETVAL_STRINGL((char *)output, 66);
+	explicit_bzero(output, sizeof(output));
+}
+
+PHP_FUNCTION(secp256k1_musig_partial_sig_parse)
+{
+	char *input;
+	size_t input_len;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(input, input_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (input_len != 32) {
+		zend_argument_value_error(1, "must be exactly 32 bytes");
+		RETURN_THROWS();
+	}
+
+	secp256k1_musig_partial_sig partial_sig;
+
+	RETVAL_FALSE;
+	if (secp256k1_musig_partial_sig_parse(SECP256K1_G(ctx), &partial_sig, (const unsigned char *)input)) {
+		zend_object *obj = secp256k1_musig_partial_sig_create_object(secp256k1_musig_partial_sig_ce);
+		secp256k1_musig_partial_sig_from_obj(obj)->partial_sig = partial_sig;
+		RETVAL_OBJ(obj);
+	}
+}
+
+PHP_FUNCTION(secp256k1_musig_partial_sig_serialize)
+{
+	zval *sig_zval;
+	unsigned char output[32];
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_OBJECT_OF_CLASS(sig_zval, secp256k1_musig_partial_sig_ce)
+	ZEND_PARSE_PARAMETERS_END();
+
+	secp256k1_musig_partial_sig_obj *intern = secp256k1_musig_partial_sig_from_obj(Z_OBJ_P(sig_zval));
+
+	secp256k1_musig_partial_sig_serialize(SECP256K1_G(ctx), output, &intern->partial_sig);
+
+	RETVAL_STRINGL((char *)output, 32);
+	explicit_bzero(output, sizeof(output));
+}
