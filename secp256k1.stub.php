@@ -238,6 +238,12 @@ function secp256k1_musig_aggnonce_serialize(secp256k1_musig_aggnonce $nonce): st
 function secp256k1_musig_partial_sig_parse(string $in32): secp256k1_musig_partial_sig|false {}
 
 function secp256k1_musig_partial_sig_serialize(secp256k1_musig_partial_sig $sig): string {}
+
+function secp256k1_musig_nonce_gen(secp256k1_pubkey $pubkey, ?string $seckey32 = null, ?string $msg32 = null, ?secp256k1_musig_keyagg_cache $keyagg_cache = null, ?string $extra_input32 = null): array|false {}
+
+function secp256k1_musig_nonce_gen_counter(int $nonrepeating_cnt, secp256k1_keypair $keypair, ?string $msg32 = null, ?secp256k1_musig_keyagg_cache $keyagg_cache = null, ?string $extra_input32 = null): array|false {}
+
+function secp256k1_musig_nonce_agg(array $pubnonces): secp256k1_musig_aggnonce|false {}
 #endif
 
 #if defined(HAVE_SECP256K1_SILENTPAYMENTS)

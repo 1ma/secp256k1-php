@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: f3abcae47476f12178449fbb60c601fef2ca8607 */
+ * Stub hash: 1928578148b3811dfcfaed7d5a91b5b1b8d7a1be */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_context_randomize, 0, 0, _IS_BOOL, 0)
 ZEND_END_ARG_INFO()
@@ -256,6 +256,26 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_secp256k1_musig_partial_sig_serialize, 0, 1, IS_STRING, 0)
 	ZEND_ARG_OBJ_INFO(0, sig, secp256k1_musig_partial_sig, 0)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_musig_nonce_gen, 0, 1, MAY_BE_ARRAY|MAY_BE_FALSE)
+	ZEND_ARG_OBJ_INFO(0, pubkey, secp256k1_pubkey, 0)
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, seckey32, IS_STRING, 1, "null")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, msg32, IS_STRING, 1, "null")
+	ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE(0, keyagg_cache, secp256k1_musig_keyagg_cache, 1, "null")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, extra_input32, IS_STRING, 1, "null")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_secp256k1_musig_nonce_gen_counter, 0, 2, MAY_BE_ARRAY|MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, nonrepeating_cnt, IS_LONG, 0)
+	ZEND_ARG_OBJ_INFO(0, keypair, secp256k1_keypair, 0)
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, msg32, IS_STRING, 1, "null")
+	ZEND_ARG_OBJ_INFO_WITH_DEFAULT_VALUE(0, keyagg_cache, secp256k1_musig_keyagg_cache, 1, "null")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, extra_input32, IS_STRING, 1, "null")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_TYPE_MASK_EX(arginfo_secp256k1_musig_nonce_agg, 0, 1, secp256k1_musig_aggnonce, MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, pubnonces, IS_ARRAY, 0)
+ZEND_END_ARG_INFO()
 #endif
 
 #if defined(HAVE_SECP256K1_SILENTPAYMENTS)
@@ -367,6 +387,9 @@ ZEND_FUNCTION(secp256k1_musig_aggnonce_parse);
 ZEND_FUNCTION(secp256k1_musig_aggnonce_serialize);
 ZEND_FUNCTION(secp256k1_musig_partial_sig_parse);
 ZEND_FUNCTION(secp256k1_musig_partial_sig_serialize);
+ZEND_FUNCTION(secp256k1_musig_nonce_gen);
+ZEND_FUNCTION(secp256k1_musig_nonce_gen_counter);
+ZEND_FUNCTION(secp256k1_musig_nonce_agg);
 #endif
 #if defined(HAVE_SECP256K1_SILENTPAYMENTS)
 ZEND_FUNCTION(secp256k1_silentpayments_sender_create_outputs);
@@ -445,6 +468,9 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(secp256k1_musig_aggnonce_serialize, arginfo_secp256k1_musig_aggnonce_serialize)
 	ZEND_FE(secp256k1_musig_partial_sig_parse, arginfo_secp256k1_musig_partial_sig_parse)
 	ZEND_FE(secp256k1_musig_partial_sig_serialize, arginfo_secp256k1_musig_partial_sig_serialize)
+	ZEND_FE(secp256k1_musig_nonce_gen, arginfo_secp256k1_musig_nonce_gen)
+	ZEND_FE(secp256k1_musig_nonce_gen_counter, arginfo_secp256k1_musig_nonce_gen_counter)
+	ZEND_FE(secp256k1_musig_nonce_agg, arginfo_secp256k1_musig_nonce_agg)
 #endif
 #if defined(HAVE_SECP256K1_SILENTPAYMENTS)
 	ZEND_FE(secp256k1_silentpayments_sender_create_outputs, arginfo_secp256k1_silentpayments_sender_create_outputs)
