@@ -244,6 +244,14 @@ function secp256k1_musig_nonce_gen(secp256k1_pubkey $pubkey, ?string $seckey32 =
 function secp256k1_musig_nonce_gen_counter(int $nonrepeating_cnt, secp256k1_keypair $keypair, ?string $msg32 = null, ?secp256k1_musig_keyagg_cache $keyagg_cache = null, ?string $extra_input32 = null): array|false {}
 
 function secp256k1_musig_nonce_agg(array $pubnonces): secp256k1_musig_aggnonce|false {}
+
+function secp256k1_musig_nonce_process(secp256k1_musig_aggnonce $aggnonce, string $msg32, secp256k1_musig_keyagg_cache $keyagg_cache): secp256k1_musig_session|false {}
+
+function secp256k1_musig_partial_sign(secp256k1_musig_secnonce $secnonce, secp256k1_keypair $keypair, secp256k1_musig_keyagg_cache $keyagg_cache, secp256k1_musig_session $session): secp256k1_musig_partial_sig|false {}
+
+function secp256k1_musig_partial_sig_verify(secp256k1_musig_partial_sig $partial_sig, secp256k1_musig_pubnonce $pubnonce, secp256k1_pubkey $pubkey, secp256k1_musig_keyagg_cache $keyagg_cache, secp256k1_musig_session $session): bool {}
+
+function secp256k1_musig_partial_sig_agg(secp256k1_musig_session $session, array $partial_sigs): string|false {}
 #endif
 
 #if defined(HAVE_SECP256K1_SILENTPAYMENTS)
