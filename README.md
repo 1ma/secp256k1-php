@@ -37,7 +37,7 @@ recovery module => On
 extrakeys module => On
 schnorrsig module => On
 ellswift module => On
-musig module => Not supported
+musig module => On
 silentpayments module => On
 ```
 
@@ -90,18 +90,6 @@ secp256k1-php binding, which is still unmaintained as I write this in late 2026.
 
 My motivation was not only to make the core ECDSA and Schnorr functionality available to modern PHP versions (>= 8.2),
 but also to expose the new APIs that libsecp256k1 has gained over the years (`ellswift`, `musig`, `silentpayments`).
-
-### Why is the `musig` module not supported?
-
-The API of this module is remarkably complex and I don't fully understand it at the same level as the others.
-
-I decided to put off the implementation for later releases, since the base module plus extrakeys+schnorrsig
-is probably what 99% of users will care about.
-
-If you have a use case for the musig API let me know in a GitHub issue.
-
-All the other secp256k1 modules are supported, but only if they were enabled in libsecp256k1
-when it was built or packaged for your distro.
 
 ### Does `secp256k1` follow [semantic versioning](https://semver.org/)?
 
