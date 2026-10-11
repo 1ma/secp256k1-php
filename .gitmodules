@@ -1,6 +1,3 @@
 [submodule "secp256k1"]
 	path = secp256k1
 	url = https://github.com/bitcoin-core/secp256k1
-[submodule "bit-wasp"]
-	path = bit-wasp
-	url = https://github.com/Bit-Wasp/secp256k1-php
