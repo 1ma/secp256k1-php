@@ -47,7 +47,7 @@ If your system packages a version of libsecp256k1 older than `v0.2.0` or you wan
 the newer APIs you will need to build libsecp256k1 manually before you install the PHP extension.
 
 ```shell
-$ sudo apt install build-essential cmake git
+$ sudo apt install build-essential cmake git pkg-config
 $ git clone --branch v0.8.0 https://github.com/bitcoin-core/secp256k1
 $ cmake -S secp256k1 -B secp256k1/build -DSECP256K1_ENABLE_MODULE_RECOVERY=ON -DSECP256K1_BUILD_BENCHMARK=OFF -DSECP256K1_BUILD_CTIME_TESTS=OFF -DSECP256K1_BUILD_TESTS=OFF -DSECP256K1_BUILD_EXHAUSTIVE_TESTS=OFF
 $ cmake --build secp256k1/build
@@ -67,17 +67,40 @@ See [secp256k1.stub.php](secp256k1.stub.php)
 
 ## F.A.Q.
 
-### Are there stubs for the `secp256k1` functions?
+### What are secp256k1 contexts, and why can't I find them?
 
-Yes. Simply use Composer to install `uma/secp256k1-php` as a development dependency of your project:
+Virtually all functions of the secp256k1 library take a pointer to a `secp256k1_context` struct as the first argument.
+These context objects are meant to mitigate potential side-channel attacks while performing cryptographic computations
+that involve manipulating secret keys.
 
-```shell
-$ composer require --dev uma/secp256k1-php
+A suitable context is obtained by calling `secp256k1_context_create()` and then `secp256k1_context_randomize()` on it.
+The library's documentation discourages creating and randomizing a dedicated context for each function call, but at
+the same time recommends re-randomizing contexts "every few computations involving secret keys, as a defense-in-depth
+measure".
+
+Because of the tediousness that contexts adds to using secp256k1, this binding creates and randomizes a single context
+when the extension is loaded, and all function calls use that context for the full lifecycle of that PHP process.
+
+You can still re-randomize the global context anytime by calling `secp256k1_context_randomize()` if you want more
+control. As an example, if you had a php-fpm app that used secp256k1 and wanted to re-randomize the context of each
+FPM worker with 5% probability every time it serves a request, you could run a snippet like this before any secp256k1
+function:
+
+```php
+if (random_int(1, 100) <= 5) {
+    secp256k1_context_randomize();
+}
 ```
 
-**NOTICE:** This isn't a substitute for the real installation described above.
-This will just make the [secp256k1.stub.php](secp256k1.stub.php) file visible to your IDE so that it's aware of the extension functions.
-But this *does not* install the extension, which is really the `secp256k1.so` binary shared library.
+### How does the binding randomize its global context?
+
+It calls the underlying C function that powers [random_bytes](https://www.php.net/manual/en/function.random-bytes.php)
+to obtain the 32 byte seeds that secp256k1 require.
+
+### Does this extension work in Zend Thread Safety (ZTS) mode?
+
+Yes, this extension uses TSRM macros to ensure that in ZTS builds of PHP each thread has its own context object and
+there's no shared global state among threads.
 
 ### What was the motivation for developing this extension?
 
