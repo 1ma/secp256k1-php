@@ -188,7 +188,7 @@ PHP_FUNCTION(secp256k1_silentpayments_recipient_label_serialize)
 		Z_PARAM_OBJECT_OF_CLASS(label_zval, secp256k1_sp_label_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_sp_label_obj *intern = secp256k1_sp_label_from_obj(Z_OBJ_P(label_zval));
+	const secp256k1_sp_label_obj *intern = secp256k1_sp_label_from_obj(Z_OBJ_P(label_zval));
 
 	secp256k1_silentpayments_recipient_label_serialize(
 		SECP256K1_G(ctx), out, &intern->label
@@ -233,8 +233,8 @@ PHP_FUNCTION(secp256k1_silentpayments_recipient_create_labeled_spend_pubkey)
 		Z_PARAM_OBJECT_OF_CLASS(label_zval, secp256k1_sp_label_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_pubkey_obj *spend_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(spend_zval));
-	secp256k1_sp_label_obj *label_intern = secp256k1_sp_label_from_obj(Z_OBJ_P(label_zval));
+	const secp256k1_pubkey_obj *spend_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(spend_zval));
+	const secp256k1_sp_label_obj *label_intern = secp256k1_sp_label_from_obj(Z_OBJ_P(label_zval));
 
 	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
 	secp256k1_pubkey_obj *result = secp256k1_pubkey_from_obj(obj);
@@ -325,8 +325,8 @@ PHP_FUNCTION(secp256k1_silentpayments_recipient_prevouts_summary_create)
 
 static const unsigned char *sp_label_lookup(const unsigned char *label33, const void *label_context)
 {
-	HashTable *ht = (HashTable *)label_context;
-	zval *found = zend_hash_str_find(ht, (const char *)label33, 33);
+	const HashTable *ht = (HashTable *)label_context;
+	const zval *found = zend_hash_str_find(ht, (const char *)label33, 33);
 	if (found && Z_TYPE_P(found) == IS_STRING && Z_STRLEN_P(found) == 32) {
 		return (const unsigned char *)Z_STRVAL_P(found);
 	}

@@ -54,7 +54,7 @@ PHP_FUNCTION(secp256k1_musig_pubkey_get)
 		Z_PARAM_OBJECT_OF_CLASS(cache_zval, secp256k1_musig_keyagg_cache_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_musig_keyagg_cache_obj *cache_intern = secp256k1_musig_keyagg_cache_from_obj(Z_OBJ_P(cache_zval));
+	const secp256k1_musig_keyagg_cache_obj *cache_intern = secp256k1_musig_keyagg_cache_from_obj(Z_OBJ_P(cache_zval));
 	secp256k1_pubkey pubkey;
 
 	RETVAL_FALSE;
@@ -152,7 +152,7 @@ PHP_FUNCTION(secp256k1_musig_pubnonce_serialize)
 		Z_PARAM_OBJECT_OF_CLASS(nonce_zval, secp256k1_musig_pubnonce_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_musig_pubnonce_obj *intern = secp256k1_musig_pubnonce_from_obj(Z_OBJ_P(nonce_zval));
+	const secp256k1_musig_pubnonce_obj *intern = secp256k1_musig_pubnonce_from_obj(Z_OBJ_P(nonce_zval));
 
 	secp256k1_musig_pubnonce_serialize(SECP256K1_G(ctx), output, &intern->pubnonce);
 
@@ -193,7 +193,7 @@ PHP_FUNCTION(secp256k1_musig_aggnonce_serialize)
 		Z_PARAM_OBJECT_OF_CLASS(nonce_zval, secp256k1_musig_aggnonce_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_musig_aggnonce_obj *intern = secp256k1_musig_aggnonce_from_obj(Z_OBJ_P(nonce_zval));
+	const secp256k1_musig_aggnonce_obj *intern = secp256k1_musig_aggnonce_from_obj(Z_OBJ_P(nonce_zval));
 
 	secp256k1_musig_aggnonce_serialize(SECP256K1_G(ctx), output, &intern->aggnonce);
 
@@ -234,7 +234,7 @@ PHP_FUNCTION(secp256k1_musig_partial_sig_serialize)
 		Z_PARAM_OBJECT_OF_CLASS(sig_zval, secp256k1_musig_partial_sig_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_musig_partial_sig_obj *intern = secp256k1_musig_partial_sig_from_obj(Z_OBJ_P(sig_zval));
+	const secp256k1_musig_partial_sig_obj *intern = secp256k1_musig_partial_sig_from_obj(Z_OBJ_P(sig_zval));
 
 	secp256k1_musig_partial_sig_serialize(SECP256K1_G(ctx), output, &intern->partial_sig);
 
@@ -276,7 +276,7 @@ PHP_FUNCTION(secp256k1_musig_nonce_gen)
 		RETURN_FALSE;
 	}
 
-	secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+	const secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 	const secp256k1_musig_keyagg_cache *cache_ptr = cache_zval
 		? &secp256k1_musig_keyagg_cache_from_obj(Z_OBJ_P(cache_zval))->cache
 		: NULL;
@@ -334,7 +334,7 @@ PHP_FUNCTION(secp256k1_musig_nonce_gen_counter)
 		RETURN_THROWS();
 	}
 
-	secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
+	const secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
 	const secp256k1_musig_keyagg_cache *cache_ptr = cache_zval
 		? &secp256k1_musig_keyagg_cache_from_obj(Z_OBJ_P(cache_zval))->cache
 		: NULL;
@@ -422,8 +422,8 @@ PHP_FUNCTION(secp256k1_musig_nonce_process)
 		RETURN_THROWS();
 	}
 
-	secp256k1_musig_aggnonce_obj *aggnonce_intern = secp256k1_musig_aggnonce_from_obj(Z_OBJ_P(aggnonce_zval));
-	secp256k1_musig_keyagg_cache_obj *cache_intern = secp256k1_musig_keyagg_cache_from_obj(Z_OBJ_P(cache_zval));
+	const secp256k1_musig_aggnonce_obj *aggnonce_intern = secp256k1_musig_aggnonce_from_obj(Z_OBJ_P(aggnonce_zval));
+	const secp256k1_musig_keyagg_cache_obj *cache_intern = secp256k1_musig_keyagg_cache_from_obj(Z_OBJ_P(cache_zval));
 	secp256k1_musig_session session;
 
 	RETVAL_FALSE;
@@ -446,9 +446,9 @@ PHP_FUNCTION(secp256k1_musig_partial_sign)
 	ZEND_PARSE_PARAMETERS_END();
 
 	secp256k1_musig_secnonce_obj *secnonce_intern = secp256k1_musig_secnonce_from_obj(Z_OBJ_P(secnonce_zval));
-	secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
-	secp256k1_musig_keyagg_cache_obj *cache_intern = secp256k1_musig_keyagg_cache_from_obj(Z_OBJ_P(cache_zval));
-	secp256k1_musig_session_obj *session_intern = secp256k1_musig_session_from_obj(Z_OBJ_P(session_zval));
+	const secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
+	const secp256k1_musig_keyagg_cache_obj *cache_intern = secp256k1_musig_keyagg_cache_from_obj(Z_OBJ_P(cache_zval));
+	const secp256k1_musig_session_obj *session_intern = secp256k1_musig_session_from_obj(Z_OBJ_P(session_zval));
 	secp256k1_musig_partial_sig partial_sig;
 
 	RETVAL_FALSE;
@@ -471,11 +471,11 @@ PHP_FUNCTION(secp256k1_musig_partial_sig_verify)
 		Z_PARAM_OBJECT_OF_CLASS(session_zval, secp256k1_musig_session_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_musig_partial_sig_obj *sig_intern = secp256k1_musig_partial_sig_from_obj(Z_OBJ_P(sig_zval));
-	secp256k1_musig_pubnonce_obj *pubnonce_intern = secp256k1_musig_pubnonce_from_obj(Z_OBJ_P(pubnonce_zval));
-	secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
-	secp256k1_musig_keyagg_cache_obj *cache_intern = secp256k1_musig_keyagg_cache_from_obj(Z_OBJ_P(cache_zval));
-	secp256k1_musig_session_obj *session_intern = secp256k1_musig_session_from_obj(Z_OBJ_P(session_zval));
+	const secp256k1_musig_partial_sig_obj *sig_intern = secp256k1_musig_partial_sig_from_obj(Z_OBJ_P(sig_zval));
+	const secp256k1_musig_pubnonce_obj *pubnonce_intern = secp256k1_musig_pubnonce_from_obj(Z_OBJ_P(pubnonce_zval));
+	const secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+	const secp256k1_musig_keyagg_cache_obj *cache_intern = secp256k1_musig_keyagg_cache_from_obj(Z_OBJ_P(cache_zval));
+	const secp256k1_musig_session_obj *session_intern = secp256k1_musig_session_from_obj(Z_OBJ_P(session_zval));
 
 	RETURN_BOOL(secp256k1_musig_partial_sig_verify(SECP256K1_G(ctx), &sig_intern->partial_sig, &pubnonce_intern->pubnonce, &pubkey_intern->pubkey, &cache_intern->cache, &session_intern->session));
 }
@@ -510,7 +510,7 @@ PHP_FUNCTION(secp256k1_musig_partial_sig_agg)
 		sig_ptrs[i++] = &secp256k1_musig_partial_sig_from_obj(Z_OBJ_P(entry))->partial_sig;
 	} ZEND_HASH_FOREACH_END();
 
-	secp256k1_musig_session_obj *session_intern = secp256k1_musig_session_from_obj(Z_OBJ_P(session_zval));
+	const secp256k1_musig_session_obj *session_intern = secp256k1_musig_session_from_obj(Z_OBJ_P(session_zval));
 	unsigned char sig64[64];
 
 	RETVAL_FALSE;

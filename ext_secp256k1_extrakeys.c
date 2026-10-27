@@ -9,13 +9,13 @@ PHP_FUNCTION(secp256k1_xonly_pubkey_from_pubkey)
 		Z_PARAM_ZVAL(parity_zval)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+	const secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 
 	zend_object *obj = secp256k1_xonly_pubkey_create_object(secp256k1_xonly_pubkey_ce);
 	secp256k1_xonly_pubkey_obj *xonly_intern = secp256k1_xonly_pubkey_from_obj(obj);
 
 	int parity;
-	int ok = secp256k1_xonly_pubkey_from_pubkey(SECP256K1_G(ctx), &xonly_intern->xonly_pubkey, &parity, &pubkey_intern->pubkey);
+	const int ok = secp256k1_xonly_pubkey_from_pubkey(SECP256K1_G(ctx), &xonly_intern->xonly_pubkey, &parity, &pubkey_intern->pubkey);
 	(void)ok;
 
 	ZEND_TRY_ASSIGN_REF_LONG(parity_zval, parity);
@@ -56,7 +56,7 @@ PHP_FUNCTION(secp256k1_xonly_pubkey_serialize)
 		Z_PARAM_OBJECT_OF_CLASS(pubkey_zval, secp256k1_xonly_pubkey_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_xonly_pubkey_obj *intern = secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+	const secp256k1_xonly_pubkey_obj *intern = secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 
 	secp256k1_xonly_pubkey_serialize(SECP256K1_G(ctx), output, &intern->xonly_pubkey);
 
@@ -80,7 +80,7 @@ PHP_FUNCTION(secp256k1_xonly_pubkey_tweak_add)
 		RETURN_THROWS();
 	}
 
-	secp256k1_xonly_pubkey_obj *intern = secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+	const secp256k1_xonly_pubkey_obj *intern = secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 
 	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
 	secp256k1_pubkey_obj *result = secp256k1_pubkey_from_obj(obj);
@@ -117,7 +117,7 @@ PHP_FUNCTION(secp256k1_xonly_pubkey_tweak_add_check)
 		RETURN_THROWS();
 	}
 
-	secp256k1_xonly_pubkey_obj *intern = secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(internal_zval));
+	const secp256k1_xonly_pubkey_obj *intern = secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(internal_zval));
 
 	RETURN_BOOL(secp256k1_xonly_pubkey_tweak_add_check(
 		SECP256K1_G(ctx),
@@ -137,12 +137,12 @@ PHP_FUNCTION(secp256k1_xonly_pubkey_cmp)
 		Z_PARAM_OBJECT_OF_CLASS(pk2_zval, secp256k1_xonly_pubkey_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_xonly_pubkey_obj *pk1 = secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(pk1_zval));
-	secp256k1_xonly_pubkey_obj *pk2 = secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(pk2_zval));
+	const secp256k1_xonly_pubkey_obj *pk1 = secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(pk1_zval));
+	const secp256k1_xonly_pubkey_obj *pk2 = secp256k1_xonly_pubkey_from_obj(Z_OBJ_P(pk2_zval));
 
-	int result = secp256k1_xonly_pubkey_cmp(SECP256K1_G(ctx), &pk1->xonly_pubkey, &pk2->xonly_pubkey);
+	const int result = secp256k1_xonly_pubkey_cmp(SECP256K1_G(ctx), &pk1->xonly_pubkey, &pk2->xonly_pubkey);
 
-	RETURN_LONG(result > 0 ? 1 : (result < 0 ? -1 : 0));
+	RETURN_LONG(result > 0 ? 1 : result < 0 ? -1 : 0);
 }
 
 PHP_FUNCTION(secp256k1_keypair_create)
@@ -179,9 +179,9 @@ PHP_FUNCTION(secp256k1_keypair_sec)
 		Z_PARAM_OBJECT_OF_CLASS(keypair_zval, secp256k1_keypair_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_keypair_obj *intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
+	const secp256k1_keypair_obj *intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
 
-	int ok = secp256k1_keypair_sec(SECP256K1_G(ctx), seckey, &intern->keypair);
+	const int ok = secp256k1_keypair_sec(SECP256K1_G(ctx), seckey, &intern->keypair);
 	(void)ok;
 
 	RETVAL_STRINGL((char *)seckey, 32);
@@ -196,12 +196,12 @@ PHP_FUNCTION(secp256k1_keypair_pub)
 		Z_PARAM_OBJECT_OF_CLASS(keypair_zval, secp256k1_keypair_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
+	const secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
 
 	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
 	secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(obj);
 
-	int ok = secp256k1_keypair_pub(SECP256K1_G(ctx), &pubkey_intern->pubkey, &keypair_intern->keypair);
+	const int ok = secp256k1_keypair_pub(SECP256K1_G(ctx), &pubkey_intern->pubkey, &keypair_intern->keypair);
 	(void)ok;
 
 	RETURN_OBJ(obj);
@@ -216,13 +216,13 @@ PHP_FUNCTION(secp256k1_keypair_xonly_pub)
 		Z_PARAM_ZVAL(parity_zval)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
+	const secp256k1_keypair_obj *keypair_intern = secp256k1_keypair_from_obj(Z_OBJ_P(keypair_zval));
 
 	zend_object *obj = secp256k1_xonly_pubkey_create_object(secp256k1_xonly_pubkey_ce);
 	secp256k1_xonly_pubkey_obj *xonly_intern = secp256k1_xonly_pubkey_from_obj(obj);
 
 	int parity;
-	int ok = secp256k1_keypair_xonly_pub(SECP256K1_G(ctx), &xonly_intern->xonly_pubkey, &parity, &keypair_intern->keypair);
+	const int ok = secp256k1_keypair_xonly_pub(SECP256K1_G(ctx), &xonly_intern->xonly_pubkey, &parity, &keypair_intern->keypair);
 	(void)ok;
 
 	ZEND_TRY_ASSIGN_REF_LONG(parity_zval, parity);

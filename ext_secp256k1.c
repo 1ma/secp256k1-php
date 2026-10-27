@@ -31,7 +31,7 @@ PHP_FUNCTION(secp256k1_tagged_sha256)
 		Z_PARAM_STRING(msg, msg_len)
 	ZEND_PARSE_PARAMETERS_END();
 
-	int ok = secp256k1_tagged_sha256(SECP256K1_G(ctx), hash, (const unsigned char *)tag, tag_len, (const unsigned char *)msg, msg_len);
+	const int ok = secp256k1_tagged_sha256(SECP256K1_G(ctx), hash, (const unsigned char *)tag, tag_len, (const unsigned char *)msg, msg_len);
 	(void)ok;
 
 	RETVAL_STRINGL((char *)hash, 32);
@@ -195,7 +195,7 @@ PHP_FUNCTION(secp256k1_ec_pubkey_serialize)
 	zval *pubkey_zval;
 	zend_long flags = SECP256K1_EC_COMPRESSED;
 	unsigned char output[65];
-	size_t outputlen = sizeof(output);
+	size_t output_len = sizeof(output);
 
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_OBJECT_OF_CLASS(pubkey_zval, secp256k1_pubkey_ce)
@@ -208,11 +208,11 @@ PHP_FUNCTION(secp256k1_ec_pubkey_serialize)
 		RETURN_THROWS();
 	}
 
-	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+	const secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 
-	secp256k1_ec_pubkey_serialize(SECP256K1_G(ctx), output, &outputlen, &intern->pubkey, (unsigned int)flags);
+	secp256k1_ec_pubkey_serialize(SECP256K1_G(ctx), output, &output_len, &intern->pubkey, (unsigned int)flags);
 
-	RETVAL_STRINGL((char *)output, outputlen);
+	RETVAL_STRINGL((char *)output, output_len);
 	explicit_bzero(output, sizeof(output));
 }
 
@@ -225,7 +225,7 @@ PHP_FUNCTION(secp256k1_ec_pubkey_negate)
 	ZEND_PARSE_PARAMETERS_END();
 
 	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
-	int ret = secp256k1_ec_pubkey_negate(SECP256K1_G(ctx), &intern->pubkey);
+	const int ret = secp256k1_ec_pubkey_negate(SECP256K1_G(ctx), &intern->pubkey);
 	(void)ret;
 }
 
@@ -334,12 +334,12 @@ PHP_FUNCTION(secp256k1_ec_pubkey_cmp)
 		Z_PARAM_OBJECT_OF_CLASS(pubkey2_zval, secp256k1_pubkey_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_pubkey_obj *pk1 = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey1_zval));
-	secp256k1_pubkey_obj *pk2 = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey2_zval));
+	const secp256k1_pubkey_obj *pk1 = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey1_zval));
+	const secp256k1_pubkey_obj *pk2 = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey2_zval));
 
-	int result = secp256k1_ec_pubkey_cmp(SECP256K1_G(ctx), &pk1->pubkey, &pk2->pubkey);
+	const int result = secp256k1_ec_pubkey_cmp(SECP256K1_G(ctx), &pk1->pubkey, &pk2->pubkey);
 
-	RETURN_LONG(result > 0 ? 1 : (result < 0 ? -1 : 0));
+	RETURN_LONG(result > 0 ? 1 : result < 0 ? -1 : 0);
 }
 
 PHP_FUNCTION(secp256k1_ecdsa_signature_parse_compact)
@@ -396,7 +396,7 @@ PHP_FUNCTION(secp256k1_ecdsa_signature_serialize_compact)
 		Z_PARAM_OBJECT_OF_CLASS(sig_zval, secp256k1_ecdsa_sig_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
+	const secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
 
 	secp256k1_ecdsa_signature_serialize_compact(SECP256K1_G(ctx), output, &intern->sig);
 
@@ -409,17 +409,17 @@ PHP_FUNCTION(secp256k1_ecdsa_signature_serialize_der)
 	zval *sig_zval;
 	/* DER: 6 bytes overhead + up to 33 bytes each for R and S (ecdsa_impl.h) */
 	unsigned char output[72];
-	size_t outputlen = sizeof(output);
+	size_t output_len = sizeof(output);
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_OBJECT_OF_CLASS(sig_zval, secp256k1_ecdsa_sig_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
+	const secp256k1_ecdsa_sig_obj *intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
 
-	secp256k1_ecdsa_signature_serialize_der(SECP256K1_G(ctx), output, &outputlen, &intern->sig);
+	secp256k1_ecdsa_signature_serialize_der(SECP256K1_G(ctx), output, &output_len, &intern->sig);
 
-	RETVAL_STRINGL((char *)output, outputlen);
+	RETVAL_STRINGL((char *)output, output_len);
 	explicit_bzero(output, sizeof(output));
 }
 
@@ -484,8 +484,8 @@ PHP_FUNCTION(secp256k1_ecdsa_verify)
 		RETURN_THROWS();
 	}
 
-	secp256k1_ecdsa_sig_obj *sig_intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
-	secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+	const secp256k1_ecdsa_sig_obj *sig_intern = secp256k1_ecdsa_sig_from_obj(Z_OBJ_P(sig_zval));
+	const secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 
 	RETURN_BOOL(secp256k1_ecdsa_verify(SECP256K1_G(ctx), &sig_intern->sig, (const unsigned char *)msghash32, &pubkey_intern->pubkey));
 }

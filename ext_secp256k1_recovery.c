@@ -43,9 +43,9 @@ PHP_FUNCTION(secp256k1_ecdsa_recoverable_signature_serialize_compact)
 		Z_PARAM_ZVAL(recid_zval)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_ecdsa_recoverable_sig_obj *intern = secp256k1_ecdsa_recoverable_sig_from_obj(Z_OBJ_P(sig_zval));
+	const secp256k1_ecdsa_recoverable_sig_obj *intern = secp256k1_ecdsa_recoverable_sig_from_obj(Z_OBJ_P(sig_zval));
 
-	int ok = secp256k1_ecdsa_recoverable_signature_serialize_compact(SECP256K1_G(ctx), output, &recid, &intern->sig);
+	const int ok = secp256k1_ecdsa_recoverable_signature_serialize_compact(SECP256K1_G(ctx), output, &recid, &intern->sig);
 	(void)ok;
 
 	ZEND_TRY_ASSIGN_REF_LONG(recid_zval, recid);
@@ -61,12 +61,12 @@ PHP_FUNCTION(secp256k1_ecdsa_recoverable_signature_convert)
 		Z_PARAM_OBJECT_OF_CLASS(sig_zval, secp256k1_ecdsa_recoverable_sig_ce)
 	ZEND_PARSE_PARAMETERS_END();
 
-	secp256k1_ecdsa_recoverable_sig_obj *intern = secp256k1_ecdsa_recoverable_sig_from_obj(Z_OBJ_P(sig_zval));
+	const secp256k1_ecdsa_recoverable_sig_obj *intern = secp256k1_ecdsa_recoverable_sig_from_obj(Z_OBJ_P(sig_zval));
 
 	zend_object *obj = secp256k1_ecdsa_sig_create_object(secp256k1_ecdsa_sig_ce);
 	secp256k1_ecdsa_sig_obj *result = secp256k1_ecdsa_sig_from_obj(obj);
 
-	int ok = secp256k1_ecdsa_recoverable_signature_convert(SECP256K1_G(ctx), &result->sig, &intern->sig);
+	const int ok = secp256k1_ecdsa_recoverable_signature_convert(SECP256K1_G(ctx), &result->sig, &intern->sig);
 	(void)ok;
 
 	RETURN_OBJ(obj);
@@ -119,7 +119,7 @@ PHP_FUNCTION(secp256k1_ecdsa_recover)
 		RETURN_THROWS();
 	}
 
-	secp256k1_ecdsa_recoverable_sig_obj *sig_intern = secp256k1_ecdsa_recoverable_sig_from_obj(Z_OBJ_P(sig_zval));
+	const secp256k1_ecdsa_recoverable_sig_obj *sig_intern = secp256k1_ecdsa_recoverable_sig_from_obj(Z_OBJ_P(sig_zval));
 
 	zend_object *obj = secp256k1_pubkey_create_object(secp256k1_pubkey_ce);
 	secp256k1_pubkey_obj *pubkey_intern = secp256k1_pubkey_from_obj(obj);

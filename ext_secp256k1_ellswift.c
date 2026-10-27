@@ -72,7 +72,7 @@ PHP_FUNCTION(secp256k1_ellswift_encode)
 		RETURN_THROWS();
 	}
 
-	secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
+	const secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 
 	secp256k1_ellswift_encode(SECP256K1_G(ctx), ell64, &intern->pubkey, (const unsigned char *)rnd);
 
