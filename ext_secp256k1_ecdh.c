@@ -21,11 +21,10 @@ PHP_FUNCTION(secp256k1_ecdh)
 
 	const secp256k1_pubkey_obj *intern = secp256k1_pubkey_from_obj(Z_OBJ_P(pubkey_zval));
 
-	if (!secp256k1_ecdh(SECP256K1_G(ctx), output, &intern->pubkey, (const unsigned char *)seckey, NULL, NULL)) {
-		explicit_bzero(output, sizeof(output));
-		RETURN_FALSE;
+	RETVAL_FALSE;
+	if (secp256k1_ecdh(SECP256K1_G(ctx), output, &intern->pubkey, (const unsigned char *)seckey, NULL, NULL)) {
+		RETVAL_STRINGL((char *)output, 32);
 	}
 
-	RETVAL_STRINGL((char *)output, 32);
 	explicit_bzero(output, sizeof(output));
 }

@@ -24,12 +24,11 @@ PHP_FUNCTION(secp256k1_ellswift_create)
 		RETURN_THROWS();
 	}
 
-	if (!secp256k1_ellswift_create(SECP256K1_G(ctx), ell64, (const unsigned char *)seckey, (const unsigned char *)aux)) {
-		explicit_bzero(ell64, sizeof(ell64));
-		RETURN_FALSE;
+	RETVAL_FALSE;
+	if (secp256k1_ellswift_create(SECP256K1_G(ctx), ell64, (const unsigned char *)seckey, (const unsigned char *)aux)) {
+		RETVAL_STRINGL((char *)ell64, 64);
 	}
 
-	RETVAL_STRINGL((char *)ell64, 64);
 	explicit_bzero(ell64, sizeof(ell64));
 }
 
@@ -136,13 +135,12 @@ PHP_FUNCTION(secp256k1_ellswift_xdh)
 			RETURN_THROWS();
 	}
 
-	if (!secp256k1_ellswift_xdh(SECP256K1_G(ctx), output,
+	RETVAL_FALSE;
+	if (secp256k1_ellswift_xdh(SECP256K1_G(ctx), output,
 			(const unsigned char *)ell_a, (const unsigned char *)ell_b,
 			(const unsigned char *)seckey, party, hashfp, data)) {
-		explicit_bzero(output, sizeof(output));
-		RETURN_FALSE;
+		RETVAL_STRINGL((char *)output, 32);
 	}
 
-	RETVAL_STRINGL((char *)output, 32);
 	explicit_bzero(output, sizeof(output));
 }

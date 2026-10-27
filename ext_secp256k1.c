@@ -72,12 +72,11 @@ PHP_FUNCTION(secp256k1_ec_seckey_negate)
 
 	memcpy(buf, seckey, 32);
 
-	if (!secp256k1_ec_seckey_negate(SECP256K1_G(ctx), buf)) {
-		explicit_bzero(buf, sizeof(buf));
-		RETURN_FALSE;
+	RETVAL_FALSE;
+	if (secp256k1_ec_seckey_negate(SECP256K1_G(ctx), buf)) {
+		RETVAL_STRINGL((char *)buf, 32);
 	}
 
-	RETVAL_STRINGL((char *)buf, 32);
 	explicit_bzero(buf, sizeof(buf));
 }
 
@@ -104,12 +103,11 @@ PHP_FUNCTION(secp256k1_ec_seckey_tweak_add)
 
 	memcpy(buf, seckey, 32);
 
-	if (!secp256k1_ec_seckey_tweak_add(SECP256K1_G(ctx), buf, (const unsigned char *)tweak)) {
-		explicit_bzero(buf, sizeof(buf));
-		RETURN_FALSE;
+	RETVAL_FALSE;
+	if (secp256k1_ec_seckey_tweak_add(SECP256K1_G(ctx), buf, (const unsigned char *)tweak)) {
+		RETVAL_STRINGL((char *)buf, 32);
 	}
 
-	RETVAL_STRINGL((char *)buf, 32);
 	explicit_bzero(buf, sizeof(buf));
 }
 
@@ -136,12 +134,11 @@ PHP_FUNCTION(secp256k1_ec_seckey_tweak_mul)
 
 	memcpy(buf, seckey, 32);
 
-	if (!secp256k1_ec_seckey_tweak_mul(SECP256K1_G(ctx), buf, (const unsigned char *)tweak)) {
-		explicit_bzero(buf, sizeof(buf));
-		RETURN_FALSE;
+	RETVAL_FALSE;
+	if (secp256k1_ec_seckey_tweak_mul(SECP256K1_G(ctx), buf, (const unsigned char *)tweak)) {
+		RETVAL_STRINGL((char *)buf, 32);
 	}
 
-	RETVAL_STRINGL((char *)buf, 32);
 	explicit_bzero(buf, sizeof(buf));
 }
 
